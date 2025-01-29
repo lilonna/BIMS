@@ -1,0 +1,113 @@
+﻿@model Shop
+
+@{
+    Layout = "~/Views/Shared/_Layout_Shops.cshtml";
+}
+
+
+
+
+  @*   Shop Description Section  *@
+@* <div class="row mb-4">
+    <div class="col-lg-8 ms-auto  d-flex flex-column align-items-end">
+        <table class="table table-hover" style="background-color: #ffffff; border-collapse: collapse; border: none;">
+            <thead>
+                <tr style="background-color: #f7f7f7;">
+                    <th style="color: #007BFF;">Shop Owner</th>
+                    <th style="color: #007BFF;">Phone Number</th>
+                    <th style="color: #007BFF;">City</th>
+                     <th style="color: #007BFF;">Location</th> 
+                    <th style="color: #007BFF;">Business Area</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@Model.User.FirstName</td>
+                    <td>@Model.User.PhoneNumber</td>
+                    <td>@Model.ShopLocations?.FirstOrDefault()?.Room?.Floor?.Building?.City?.Name</td>
+                     <td>@Model.ShopLocations?.FirstOrDefault()?.Room?.Floor?.Building?.Location?.Name</td> 
+                    <td>@Model.BusinessArea?.Name</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+ *@
+
+
+
+
+
+@*  Welcome Section *@
+<div class="container mt-5 ">
+    <div class="row">
+        @*  Items Section  *@
+        <div class="col-lg-8">
+            <div style="text-align:center; margin-top:0px;">
+                <h1 style="color: #007BFF; font-size: 2.5rem; font-weight: bold; text-align:center;">
+                    Welcome to @Model.Name!
+                </h1>
+                <p style="color: #6c757d; font-size: 1.2rem;">
+                    Explore our collection of amazing products.
+                </p>
+            </div>
+
+            <div class="row">
+                @foreach (var item in Model.Items)
+                {
+                    <div class="col-md-4 ">
+                        <div class="card shadow-sm" style="max-width: 180px;  margin: auto;">
+                            <img src="@item.ImagePath" class="card-img-top" alt="Product Image"
+                                 style="height: 150px; object-fit: cover; border-bottom: 1px solid #f1f1f1;" />
+                            <div class="card-body" style="padding:5px;">
+                                <a asp-action="Details" asp-route-id="@item.Id" asp-controller="Items">
+                                    <h5 class="card-title" style="font-size: 1rem; margin-bottom: 2px;">@item.Name</h5>
+                                </a>
+                                <h6 class="card-title" style="font-size: 0.8rem; margin-bottom: 2px;">@item.Price</h6>
+                                <p class="card-text text-muted" style="font-size: 0.8rem; margin-bottom: 2px;">
+                                    @item.ItemCategory.Name<br />
+                                    @(item.IsAvailable ? "Available" : "Not Available at the moment")
+                                </p>
+                                
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+       @*  Related Shops  *@
+        <div class="col-lg-2 ms-auto  d-flex flex-column align-items-end">
+            <h4 class="mb-3" style="color: #333;">Related Shops</h4>
+
+            @if (ViewBag.RelatedShops != null)
+            {
+                foreach (var relatedShop in (List<Shop>)ViewBag.RelatedShops)
+                {
+                    <div class="card shadow-sm mb-4"
+                         style="width: 100%; border-radius: 8px; overflow: hidden; background-color: white; transition: transform 0.3s ease;">
+                        <img src="@relatedShop.ImageUrl" class="card-img-top" alt="Shop Image"
+                             style="height: 100px; object-fit: cover; border-bottom: 1px solid #f1f1f1;" />
+                        <div class="card-body">
+                            <p class="card-title text-primary"
+                               style="font-size: 1rem; font-weight: bold; color: #007bff;">
+                                @relatedShop.Name
+                            </p>
+                            <p class="text-muted small mb-2" style="color: #6c757d; font-size: 0.85rem;">
+                                @relatedShop.Description
+                            </p>
+                            <a asp-action="Details" asp-route-id="@relatedShop.Id"
+                               class="btn btn-sm w-100"
+                               style="background-color: #FF7E00; color: white; border: none; padding: 10px; text-align: center;
+                                      transition: background-color 0.3s ease; text-decoration: none;">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+

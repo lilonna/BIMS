@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> - Click2Carry</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/BIMS.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/lilo.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary border-bottom shadow-sm mb-3 sticky-top fixed-top">
+            <div class="container-fluid">
+                <!-- Brand -->
+                <a class="navbar-brand" href="#">
+                    <img src="/images/LOGOc.png"
+                         height="45"
+                         alt="Logo"
+                         loading="lazy"
+                         style=" opacity: 1;"  />
+                </a>
+
+                <!-- Toggle Button for Mobile -->
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarNav"
+                        aria-controls="navbarNav"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Navbar Links -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">T</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">About Us</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Contact Us</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
+                    <!-- User Authentication Links -->
+                    
+                          
+                       
+                    </div>
+
+                    @if (Context.Session.GetString("UserId") != null)
+                    {
+
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle d-flex align-items-center" type="button" id="userProfileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://www.bing.com/images/search?view=detailV2&ccid=qOSjSxoU&id=E3687EE95B60927CD8E82F0708E27EB31863C587&thid=OIP.qOSjSxoUNci9aPL9spX_eQHaHa&mediaurl=https%3A%2F%2Fstatic.vecteezy.com%2Fsystem%2Fresources%2Fpreviews%2F026%2F619%2F142%2Foriginal%2Fdefault-avatar-profile-icon-of-social-media-user-photo-image-vector.jpg&cdnurl=https%3A%2F%2Fth.bing.com%2Fth%2Fid%2FR.a8e4a34b1a1435c8bd68f2fdb295ff79%3Frik%3Dh8VjGLN%252b4ggHLw%26pid%3DImgRaw%26r%3D0&exph=1920&expw=1920&q=Default+User+Profile+Photo&simid=608001687423423198&FORM=IRPRST&ck=0DE5E83DBC077A99E7DC9464EEC6170F&selectedIndex=3&itb=0&cw=1145&ch=542&ajaxhist=0&ajaxserp=0" alt="Profile Picture" class="rounded-circle me-2" width="40" height="40">
+                            
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userProfileDropdown">
+                            <li><a class="dropdown-item" href="@Url.Action("Profile", "Users")">View Profile</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("Settings", "Users")">Account Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="@Url.Action("Logout", "Users")" >
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+
+
+
+
+                    // Shops Dropdown
+                        if (ViewData["HasShops"] != null && (bool)ViewData["HasShops"])
+                        {
+                
+                            <div class="dropdown mt-3">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="shopDropdownMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Select a Shop
+                                </button>
+                            <ul class="dropdown-menu" aria-labelledby="shopDropdownMenu">
+                                @foreach (var shop in (IEnumerable<BIMS.Models.Shop>)ViewData["Shops"])
+                                {
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("ShopDashboard", "Shops", new { shopId = shop.Id })">
+                                            @shop.Name
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                            </div>
+                        }
+                    // Buildings Dropdown
+                            if(ViewData["HasBuildings"] != null && (bool)ViewData["HasBuildings"])
+                        {
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="buildingDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Select Building
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="shopDropdownMenu">
+                                @foreach (var building in (IEnumerable<BIMS.Models.Building>)ViewData["Buildings"])
+                                {
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("BuildingDashboard", "Buildings", new { id = building.Id })">
+                                            @building.Name
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+
+                        </div>
+                    }
+                    }
+                    else
+                    {
+                        <a class="btn btn-outline-primary" asp-action="Login" asp-controller="Users">Login</a>
+                    }
+
+            </div>
+        </nav>
+
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+
+
+
+
+            @if (TempData["LogoutSuccess"] != null)
+            {
+                <div id="toastMessage" class="toast align-items-center text-white bg-danger border-0 position-fixed top-0 start-50 translate-middle-x mt-3" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            @TempData["LogoutSuccess"]
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var toastElement = document.getElementById('toastMessage');
+                        var toast = new bootstrap.Toast(toastElement);
+                        toast.show();
+                    });
+                </script>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div id="toastMessage" class="toast align-items-center text-white bg-danger border-0 position-fixed top-0 start-50 translate-middle-x mt-3" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            @TempData["ErrorMessage"]
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var toastElement = document.getElementById('toastMessage');
+                        var toast = new bootstrap.Toast(toastElement);
+                        toast.show();
+                    });
+                </script>
+            }
+
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div id="toastMessage" class="toast align-items-center text-white bg-success border-0 position-fixed  top-0  start-50 p-3" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            @TempData["SuccessMessage"]
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var toastElement = document.getElementById('toastMessage');
+                        var toast = new bootstrap.Toast(toastElement);
+                        toast.show();
+                    });
+                </script>
+            }
+          
+            <div class="main-body">
+
+            @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2024 - BIMS - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

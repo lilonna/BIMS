@@ -1,0 +1,42 @@
+﻿@model IEnumerable<BIMS.Models.Item>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<h1>Latest Properties</h1>
+
+<div class="container mt-4">
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-3 mb-4">
+                <div class="card shadow-sm">
+                    <img src="@item.ImagePath" class="card-img-top" alt="Property Image"
+                         style="height: 200px; object-fit: cover; border-bottom: 1px solid #f1f1f1;" />
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Name</h5>
+                        
+                        <p class="card-text text-muted">
+                            Category: @item.ItemCategory.Name<br />
+                             @(item.IsAvailable ? "Available" : "Not Available at the moment")
+                        </p>
+                        @* <a href="@Url.Action("Details", new { id = item.Id })" class="btn btn-primary">View Details</a> *@
+
+                        <a href="@Url.Action("Details", new { id = item.Id })"
+                           class="btn btn-sm w-100"
+                           style="background-color: #FF7E00; color: white; border: none; padding: 10px; text-align: center;
+                                  transition: background-color 0.3s ease; text-decoration: none;">
+                            View Details
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Delete</a>
+
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+

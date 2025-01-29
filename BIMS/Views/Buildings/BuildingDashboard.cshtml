@@ -1,0 +1,11 @@
+﻿
+@{
+}
+@model BIMS.Models.Building
+
+<h2>Manage Building - @Model.Name</h2>
+<p>Number of Floors: @Model.NumberOfFloor</p>
+<p>Location ID: @Model.LocationId</p>
+
+<a href="@Url.Action("Edit", "Buildings", new { id = Model.Id })" class="btn btn-warning">Edit</a>
+<a href="@Url.Action("Details", "Buildings", new { id = Model.Id })" class="btn btn-info">View Details</a>

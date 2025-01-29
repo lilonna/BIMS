@@ -1,0 +1,96 @@
+﻿/* Sidebar Styling */
+*{
+    margin:0px;
+    padding:0px;
+}
+.side-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px; /* Wider Sidebar */
+    height: 100%;
+    background-color: #ffffff;
+    padding-top: 60px;
+    z-index: 1000;
+    border-right: 1px solid #e0e0e0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add soft shadow */
+}
+
+.shop-main-content {
+     
+}
+.shop-search-bar {
+ 
+margin-left:50%;
+
+}
+.home-card {
+    font-size: 1.2rem;
+    font-weight: bold; 
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px 20px;
+    border-radius: 5px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    
+}
+.home-link {
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2); 
+    position: relative; 
+    text-align: center; 
+    overflow: hidden;
+}
+.home-image {
+    width: 100%; 
+    height: 230px; 
+    object-fit: cover;
+}
+.home-heading {
+    text-align: center;
+    margin-bottom: 50px; 
+    margin-top: 50px; 
+    color:blue;
+}
+.text-center {
+    text-align:center;
+}
+.margin-left {
+   margin-left:50%;
+}
+.submit-button {
+    border-radius: 8px;
+    text-align: center;
+}
+/* Dropdown Styling */
+.dropdown-filter {
+    background-color: #f3f4f6;
+    color: #000;
+    width: 100%; /* Adjust width to fill the container */
+    text-align: center;
+}
+.dropdown-filter:focus {
+        border-color: #5c9ded;
+        box-shadow: 0 0 6px rgba(92, 157, 237, 0.5);
+        outline: none;
+    }
+
+.top-nav-bar {
+    display: flex;
+    background-color: #0b3556; /* Match dark blue background */
+    padding: 0px;
+    text-align: center;
+    margin:0px;
+}
+.main-body{
+    margin:0px;
+    padding:0px;
+}
+
+
+
+

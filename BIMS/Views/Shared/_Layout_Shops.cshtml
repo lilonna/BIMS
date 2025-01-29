@@ -1,0 +1,153 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/lilo.css" />
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <div class=" navbar d-flex  justify-content-flex p-3  top-nav-bar">
+        <!-- Filter by City -->
+        <div class="filter-item me-4">
+
+            <select id="city" name="cityId" asp-items="ViewBag.CityId" class="form-control dropdown-filter" onchange="filterShops()">
+                <option value="">All Cities</option>
+            </select>
+        </div>
+
+        <!-- Filter by Location -->
+        <div class="filter-item me-4">
+
+            <select id="location" name="locationId" asp-items="ViewBag.LocationId" class="form-control dropdown-filter" onchange="filterShops()">
+                <option value="">All Locations</option>
+            </select>
+        </div> 
+
+        <!-- Filter by Business Area -->
+        <div class="filter-item">
+
+            <select id="businessArea" name="businessAreaId" asp-items="ViewBag.BusinessAreaId" class="form-control dropdown-filter" onchange="filterShops()">
+                <option value="">Category</option>
+            </select>
+        </div>
+
+        <form method="get" asp-action="Index" class="d-flex ms-auto shop-search-bar ">
+
+            <input type="text" id="searchItem" name="searchItem" class="form-control" placeholder="Enter product name" />
+
+
+
+
+            <!-- Search Icon Button -->
+            <button type="submit" class="btn btn-primary ">
+                <i class="bi bi-search"></i> <!-- Bootstrap Icon for Search -->
+            </button>
+        </form>
+
+
+
+
+    </div>
+
+
+
+        <!-- Main Content Area -->
+        <div>
+        <div class="flex-grow-1" >
+            <div class="shop-main-content">
+            <div class="container " >
+                <h1>@ViewData["Title"]</h1>
+                <!-- main body content -->
+                <div class="content-wrapper">
+                    @RenderBody()
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Ensure the city dropdown is listening for changes
+            document.getElementById("city").addEventListener("change", filterShops);
+
+            // Initialize locations dropdown when cityId is already selected
+            const cityIdOnLoad = document.getElementById("city").value;
+            if (cityIdOnLoad) {
+                loadLocations(cityIdOnLoad);
+            }
+        });
+
+        function filterShops() {
+            const cityId = document.getElementById("city").value;
+            const locationId = document.getElementById("location").value;
+            const businessAreaId = document.getElementById("businessArea").value;
+
+            // Fetch and update locations
+            loadLocations(cityId);
+
+            // Generate query URL for filtering shops
+            let url = "/Shops?";
+            if (cityId) url += `cityId=${cityId}&`;
+            if (locationId) url += `locationId=${locationId}&`;
+            if (businessAreaId) url += `businessAreaId=${businessAreaId}&`;
+
+            // Redirect to apply filtering
+            window.location.href = url;
+        }
+
+        function loadLocations(cityId) {
+            var locationSelect = document.getElementById("location");
+            locationSelect.innerHTML = "<option value=''>Select Location</option>";
+
+            if (cityId) {
+                fetch(`/Shops/GetLocationsByCity?cityId=${cityId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(function (location) {
+                            var option = document.createElement("option");
+                            option.value = location.id;
+                            option.textContent = location.name;
+                            locationSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching locations:', error));
+            }
+        }
+    </script>
+
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

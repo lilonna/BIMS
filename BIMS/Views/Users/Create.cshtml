@@ -1,0 +1,135 @@
+﻿@model BIMS.Models.User
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+
+<!-- Form Page -->
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow-lg p-4" style="max-width: 500px; width: 100%; border-radius: 10px;">
+        <h3 class="text-center mb-4 fw-bold">
+            Create an account
+        </h3>
+
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Gender -->
+            <div class="mb-3 position-relative">
+                <label asp-for="GenderId" class="form-label fw-semibold">Gender</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light">
+                        <i class="bi bi-gender-ambiguous"></i> <!-- Gender Icon -->
+                    </span>
+                    <select asp-for="GenderId" class="form-select" asp-items="ViewBag.GenderId" style="color: gray;"></select>
+                </div>
+            </div>
+
+            <!-- First Name -->
+            <div class="mb-3 position-relative">
+                <label asp-for="FirstName" class="form-label fw-semibold">First Name</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light">
+                        <i class="bi bi-person"></i> <!-- Person Icon -->
+                    </span>
+                    <input asp-for="FirstName" class="form-control" placeholder="Enter first name" style="color: gray;">
+                </div>
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+
+            <!-- Middle Name -->
+            <div class="mb-3 position-relative">
+                <label asp-for="MiddleName" class="form-label fw-semibold">Middle Name</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light">
+                        <i class="bi bi-person"></i> <!-- Person Icon -->
+                    </span>
+                    <input asp-for="MiddleName" class="form-control" placeholder="Enter middle name" style="color: gray;">
+                </div>
+                <span asp-validation-for="MiddleName" class="text-danger"></span>
+            </div>
+
+            <!-- Last Name -->
+            <div class="mb-3 position-relative">
+                <label asp-for="LastName" class="form-label fw-semibold">Last Name</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light">
+                        <i class="bi bi-person"></i> <!-- Person Icon -->
+                    </span>
+                    <input asp-for="LastName" class="form-control" placeholder="Enter last name" style="color: gray;">
+                </div>
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3 position-relative">
+                <label asp-for="Email" class="form-label fw-semibold">Email</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light">
+                        <i class="bi bi-envelope"></i> <!-- Envelope Icon -->
+                    </span>
+                    <input asp-for="Email" class="form-control" placeholder="Enter email" style="color: gray;">
+                </div>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label for="Password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required />
+            </div>
+
+
+<!-- Phone -->
+            <div class="mb-3 position-relative">
+                <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light">
+                        <i class="bi bi-telephone"></i> <!-- Telephone Icon -->
+                    </span>
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="Enter phone number" style="color: gray;">
+                </div>
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <!-- Created Date -->
+            <div class="mb-3 position-relative">
+                <label asp-for="CreatedDate" class="form-label fw-semibold">Date</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light">
+                        <i class="bi bi-calendar"></i> <!-- Calendar Icon -->
+                    </span>
+                    <input asp-for="CreatedDate" type="date" class="form-control" style="color: gray;">
+                </div>
+                <span asp-validation-for="CreatedDate" class="text-danger"></span>
+            </div>
+
+            <!-- IsDeleted Checkbox -->
+            <div class="form-check mb-3">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsDeleted" /> @Html.DisplayNameFor(model => model.IsDeleted)
+                </label>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-dark text-light w-100 fw-bold" style="border-radius: 8px;">
+                    Register
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+
+
+

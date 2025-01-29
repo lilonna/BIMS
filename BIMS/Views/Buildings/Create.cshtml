@@ -1,0 +1,79 @@
+﻿@model BIMS.Models.Building
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Building</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="UseTypeId" class="control-label"> UseType</label>
+                <select asp-for="UseTypeId" class ="form-control" asp-items="ViewBag.UseTypeId"></select>
+            </div>
+            @* Add a hidden field for the UserId *@
+            <input type="hidden" asp-for="UserId" value="@ViewData["UserId"]" />
+            <div class="form-group">
+                <label asp-for="CityId" class="control-label">City</label>
+                <select asp-for="CityId" class ="form-control" asp-items="ViewBag.CityId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="LocationId" class="control-label">Location</label>
+                <select asp-for="LocationId" class ="form-control" asp-items="ViewBag.LocationId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"> Building Name</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConstractionYear" class="control-label"></label>
+                <input asp-for="ConstractionYear" class="form-control" />
+                <span asp-validation-for="ConstractionYear" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumberOfFloor" class="control-label"></label>
+                <input asp-for="NumberOfFloor" class="form-control" />
+                <span asp-validation-for="NumberOfFloor" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BuildingTypeId" class="control-label">BuildingType</label>
+                <select asp-for="BuildingTypeId" class ="form-control" asp-items="ViewBag.BuildingTypeId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="OwnershipTypeId" class="control-label">OwnershipType</label>
+                <select asp-for="OwnershipTypeId" class ="form-control" asp-items="ViewBag.OwnershipTypeId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="OwnerId" class="control-label">Owner</label>
+                <select asp-for="OwnerId" class ="form-control" asp-items="ViewBag.OwnerId"></select>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsDeleted" /> @Html.DisplayNameFor(model => model.IsDeleted)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -12,11 +12,15 @@ namespace BIMS.Controllers
     public class UsersController : Controller
     {
         private readonly BIMSContext _context;
+         private readonly IConfiguration _config;
 
-        public UsersController(BIMSContext context)
+
+        public UsersController(BIMSContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;
         }
+       
 
         // GET: Users
         public async Task<IActionResult> Index()
@@ -55,6 +59,14 @@ namespace BIMS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string password)
         {
+            string adminEmail = _config["AdminCredentials:Email"];
+            string adminPassword = _config["AdminCredentials:Password"];
+            if (email == adminEmail && password == adminPassword)
+            {
+                // Successful login
+                return RedirectToAction("Index", "Admin");
+            }
+
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
                 TempData["ErrorMessage"] = "Email and Password are required.";

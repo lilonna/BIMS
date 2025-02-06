@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BIMS.Models;
 
-public partial class BIMSContext : DbContext
+public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, int>
 {
     public BIMSContext()
     {
@@ -110,6 +112,16 @@ public partial class BIMSContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
+        // Define primary key for IdentityUserLogin<string>
+        modelBuilder.Entity<IdentityUserLogin<string>>()
+            .HasKey(l => new { l.LoginProvider, l.ProviderKey });
+
+        // Define primary key for IdentityUserToken<string>
+        modelBuilder.Entity<IdentityUserToken<string>>()
+            .HasKey(t => new { t.UserId, t.LoginProvider, t.Name });
+
         modelBuilder.Entity<Building>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Table_1");

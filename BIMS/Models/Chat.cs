@@ -15,7 +15,7 @@ public partial class Chat
 
     public int ReceiverId { get; set; }
 
-    public int ParentId { get; set; }
+    public int? ParentId { get; set; }
 
     [Required]
     [StringLength(150)]

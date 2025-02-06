@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace BIMS.Models;
 
-public partial class User
+public partial class User : IdentityUser<int>
 {
     [Key]
-    public int Id { get; set; }
+    public override int Id { get; set; }
 
     public int GenderId { get; set; }
 
@@ -26,11 +27,11 @@ public partial class User
 
     [Required]
     [StringLength(100)]
-    public string Email { get; set; }
+    public new string Email { get; set; }
 
     [Required]
     [StringLength(50)]
-    public string PhoneNumber { get; set; }
+    public new string PhoneNumber { get; set; }
 
     public DateOnly CreatedDate { get; set; }
 

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BIMS.Models;
+using Microsoft.AspNetCore.Identity;
+using System.Data;
 
 namespace BIMS.Controllers
 {
@@ -13,12 +15,20 @@ namespace BIMS.Controllers
     {
         private readonly BIMSContext _context;
          private readonly IConfiguration _config;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly RoleManager<IdentityRole<int>> _roleManager;
 
 
-        public UsersController(BIMSContext context, IConfiguration config)
+        public UsersController(BIMSContext context, IConfiguration config, UserManager<User> userManager,
+        SignInManager<User> signInManager,
+        RoleManager<IdentityRole<int>> roleManager)
         {
             _context = context;
             _config = config;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _roleManager = roleManager;
         }
        
 
@@ -63,8 +73,18 @@ namespace BIMS.Controllers
             string adminPassword = _config["AdminCredentials:Password"];
             if (email == adminEmail && password == adminPassword)
             {
-                // Successful login
+               
+               
+                   
+                    // Store admin details in session
+                    HttpContext.Session.SetString("UserId", "0");
+                    HttpContext.Session.SetString("UserRole", "Admin");
+                    HttpContext.Session.SetString("UserName", "Administrator");
+
+
+
                 return RedirectToAction("Index", "Admin");
+                
             }
 
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
@@ -96,13 +116,21 @@ namespace BIMS.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        
-
 
         // GET: Users/Register
         public IActionResult Register()
         {
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name");
+            // Check if the admin is logged in
+            if (HttpContext.Session.GetString("UserRole") == "Admin")
+            {
+                ViewData["Roles"] = new SelectList(new List<string> { "User", "DeliveryPerson" });
+            }
+            else
+            {
+                ViewData["Roles"] = null;
+            }
+
 
             return View();
         }
@@ -110,7 +138,7 @@ namespace BIMS.Controllers
         // POST: Users/Regist
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(User user, string password)
+        public async Task<IActionResult> Register(User user, string password, string? role)
         {
           
 
@@ -135,9 +163,29 @@ namespace BIMS.Controllers
                     // Save user
                     _context.Users.Add(user);
                     await _context.SaveChangesAsync();
+                    // Assign Role: If an admin is creating a user, they can assign a role
+                    if (HttpContext.Session.GetString("UserRole") == "Admin" && !string.IsNullOrEmpty(role))
+                    {
+                        await _userManager.AddToRoleAsync(user, role);
 
-                    TempData["SuccessMessage"] = "Registration successful. Please login.";
-                    return RedirectToAction(nameof(Login));
+
+                    }
+                    else
+                    {
+                        // Default role for normal users
+                        var roleResult = await _userManager.AddToRoleAsync(user, "User");
+                        TempData["ErrorMessage"] = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                    }
+
+                    // Redirect admins to the user list page
+                    if (User.IsInRole("Admin"))
+                    {
+                        return RedirectToAction("Index", "Admin");
+                    }
+
+                    // Redirect normal users to the home page
+                    TempData["SuccessMessage"] = "Registration successful!";
+                    return RedirectToAction("Index", "Home");
                 }
                 catch (Exception ex)
                 {
@@ -150,6 +198,21 @@ namespace BIMS.Controllers
 
             // Ensure GenderId and other fields are populated
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name", user.GenderId);
+            // Pass the roles again if the user is an admin
+            if (HttpContext.Session.GetString("UserRole") == "Admin")
+            {
+                ViewData["Roles"] = new SelectList(new List<string> { "User", "DeliveryPerson" });
+            }
+            else
+            {
+                ViewData["Roles"] = null;
+            }
+
+            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                Console.WriteLine($"Error: {error.ErrorMessage}");
+            }
+
 
             return View(user);
         }

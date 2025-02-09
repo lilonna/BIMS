@@ -1,6 +1,9 @@
 using BIMS.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
@@ -8,12 +11,15 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+
 builder.Services.AddDbContext<BIMSContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("BIMSConnection"))
             );
 builder.Services.AddIdentity<User, IdentityRole<int>>()
+    .AddRoleManager<RoleManager<IdentityRole<int>>>()
     .AddEntityFrameworkStores<BIMSContext>()
     .AddDefaultTokenProviders();
+
 
 
 builder.Services.AddSession(options =>
@@ -30,6 +36,7 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
+
 }
 app.UseStaticFiles();
 
@@ -44,4 +51,25 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+async Task EnsureRoles(IServiceProvider serviceProvider)
+{
+    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+
+    string[] roles = { "Admin", "User", "DeliveryPerson" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole<int>(role));
+        }
+    }
+}
+
+// Call the method after building the app
+using (var scope = app.Services.CreateScope())
+{
+    var serviceProvider = scope.ServiceProvider;
+    await EnsureRoles(serviceProvider);
+}
 app.Run();

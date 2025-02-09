@@ -7,8 +7,8 @@
 
 
 
-  @*   Shop Description Section  *@
-@* <div class="row mb-4">
+@*   Shop Description Section  *@
+<div class="row mb-4">
     <div class="col-lg-8 ms-auto  d-flex flex-column align-items-end">
         <table class="table table-hover" style="background-color: #ffffff; border-collapse: collapse; border: none;">
             <thead>
@@ -16,7 +16,7 @@
                     <th style="color: #007BFF;">Shop Owner</th>
                     <th style="color: #007BFF;">Phone Number</th>
                     <th style="color: #007BFF;">City</th>
-                     <th style="color: #007BFF;">Location</th> 
+                    <th style="color: #007BFF;">Location</th>
                     <th style="color: #007BFF;">Business Area</th>
                 </tr>
             </thead>
@@ -25,13 +25,13 @@
                     <td>@Model.User.FirstName</td>
                     <td>@Model.User.PhoneNumber</td>
                     <td>@Model.ShopLocations?.FirstOrDefault()?.Room?.Floor?.Building?.City?.Name</td>
-                     <td>@Model.ShopLocations?.FirstOrDefault()?.Room?.Floor?.Building?.Location?.Name</td> 
+                    <td>@Model.ShopLocations?.FirstOrDefault()?.Room?.Floor?.Building?.Location?.Name</td>
                     <td>@Model.BusinessArea?.Name</td>
                 </tr>
             </tbody>
         </table>
     </div>
-</div> *@
+</div>
 
 
 
@@ -68,7 +68,7 @@
                                     @item.ItemCategory.Name<br />
                                     @(item.IsAvailable ? "Available" : "Not Available at the moment")
                                 </p>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -76,7 +76,7 @@
             </div>
         </div>
 
-       @*  Related Shops  *@
+        @*  Related Shops  *@
         <div class="col-lg-2 ms-auto  d-flex flex-column align-items-end">
             <h4 class="mb-3" style="color: #333;">Related Shops</h4>
 

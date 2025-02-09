@@ -114,6 +114,22 @@
                 </div>
             </div>
 
+            @if (ViewData["Roles"] != null)
+            {
+                <div class="form-group">
+                    <label for="Role">Select Role:</label>
+                    <select name="role" class="form-control">
+                        @foreach (var role in ViewData["Roles"] as SelectList)
+                        {
+                            <option value="@role.Value">@role.Text</option>
+                        }
+                    </select>
+                </div>
+            }
+
+           
+
+
             <!-- Submit Button -->
             <div class="submit-button">
                 <button type="submit" class="btn btn-dark text-light w-100 fw-bold" >

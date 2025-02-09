@@ -9,3 +9,27 @@
 
 <h2>@ViewData["Title"]</h2>
 <p>Welcome to the Admin Dashboard!</p>
+
+
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Register New User</h5>
+                <p class="card-text">Create a new user (Admin or Customer).</p>
+                <a  asp-controller="Users" asp-action="Register" class="btn btn-primary">Register User</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Manage Users</h5>
+                <p class="card-text">View and manage all users.</p>
+                <a asp-controller="Users" asp-action="Index" class="btn btn-warning">Manage Users</a>
+            </div>
+        </div>
+    </div>
+</div>

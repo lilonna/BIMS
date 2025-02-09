@@ -97,6 +97,7 @@ namespace BIMS.Controllers
             return Json(locations);
         }
         // GET: Shops/Details/5
+
         public async Task<IActionResult> Details(int? id, int? shopCityId, int? locationId, int? businessAreaId)
         {
             if (id == null)
@@ -139,7 +140,7 @@ namespace BIMS.Controllers
                             s.BusinessArea.Id == shop.BusinessArea.Id &&  // Same Business Area
                             s.ShopLocations.Any(sl => sl.Room.Floor.Building.CityId == shopCityId));// Same City
 
-    var relatedShops = await relatedShopsQuery.ToListAsync();
+            var relatedShops = await relatedShopsQuery.ToListAsync();
 
             Console.WriteLine($"Related shops count: {relatedShops.Count}");
 

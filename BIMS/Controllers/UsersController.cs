@@ -183,7 +183,7 @@ namespace BIMS.Controllers
                     // Assign Role
                     if (HttpContext.Session.GetString("UserRole") == "Admin")
                     {
-                        var roleResult = await _userManager.AddToRoleAsync(user, role);
+                        var roleResult = await _userManager.AddToRoleAsync(user, "DeliveryPerson");
                         if (!roleResult.Succeeded)
                         {
                             TempData["ErrorMessage"] = "Failed to assign role: " + string.Join(", ", roleResult.Errors.Select(e => e.Description));

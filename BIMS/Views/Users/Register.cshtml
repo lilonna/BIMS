@@ -113,19 +113,20 @@
                     
                 </div>
             </div>
-
-            @if (ViewData["Roles"] != null)
+@if (ViewData["Roles"] != null)
+{
+    <div class="form-group">
+        <label for="Role">Select Role:</label>
+        <select name="role" class="form-control" required>
+            <option value="">-- Select a Role --</option>
+            @foreach (var role in ViewData["Roles"] as SelectList)
             {
-                <div class="form-group">
-                    <label for="Role">Select Role:</label>
-                    <select name="role" class="form-control">
-                        @foreach (var role in ViewData["Roles"] as SelectList)
-                        {
-                            <option value="@role.Value">@role.Text</option>
-                        }
-                    </select>
-                </div>
+                <option value="@role.Value">@role.Text</option>
             }
+        </select>
+    </div>
+}
+
 
            
 

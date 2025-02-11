@@ -55,7 +55,7 @@ async Task EnsureRoles(IServiceProvider serviceProvider)
 {
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
-    string[] roles = { "Admin", "User", "DeliveryPerson" };
+    string[] roles = { "Admin", "User", "DeliveryPerson" , "ShopOwner" };
 
     foreach (var role in roles)
     {

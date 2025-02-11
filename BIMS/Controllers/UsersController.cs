@@ -140,8 +140,6 @@ namespace BIMS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(User user, string password, string? role)
         {
-          
-
             if (string.IsNullOrEmpty(password))
             {
                 TempData["ErrorMessage"] = "Password is required.";
@@ -152,38 +150,59 @@ namespace BIMS.Controllers
             {
                 try
                 {
+                    // Hash the password
+                    //var passwordHasher = new PasswordHasher<User>();
+                    //user.PasswordHash = passwordHasher.HashPassword(user, password);
                     // Store the plain password 
+                    user.UserName = user.Email;
                     user.Password = password;
 
                     // Additional user setup
-                    user.CreatedDate = DateOnly.FromDateTime(DateTime.Now); // Ensure compatibility
+                    user.CreatedDate = DateOnly.FromDateTime(DateTime.Now);
                     user.IsActive = true;
                     user.IsDeleted = false;
-
-                    // Save user
-                    _context.Users.Add(user);
-                    await _context.SaveChangesAsync();
-                    // Assign Role: If an admin is creating a user, they can assign a role
-                    if (HttpContext.Session.GetString("UserRole") == "Admin" && !string.IsNullOrEmpty(role))
+                    if (!string.IsNullOrEmpty(role))
                     {
-                        await _userManager.AddToRoleAsync(user, role);
+                        var roleExists = await _roleManager.RoleExistsAsync(role);
+                        TempData["DebugRole"] = $"Selected Role: {role}, Exists: {roleExists}";
+                        if (!roleExists)
+                        {
+                            TempData["ErrorMessage"] = "Role does not exist.";
+                            return View(user);
+                        }
+                    }
 
+                    // Create the user using Identity Framework
+                    var createResult = await _userManager.CreateAsync(user);
+                    if (!createResult.Succeeded)
+                    {
+                        TempData["ErrorMessage"] = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                        return View(user);
+                    }
+                   
+                    // Assign Role
+                    if (HttpContext.Session.GetString("UserRole") == "Admin")
+                    {
+                        var roleResult = await _userManager.AddToRoleAsync(user, role);
+                        if (!roleResult.Succeeded)
+                        {
+                            TempData["ErrorMessage"] = "Failed to assign role: " + string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                            return View(user);
+                        }
 
                     }
                     else
                     {
-                        // Default role for normal users
-                        var roleResult = await _userManager.AddToRoleAsync(user, "User");
-                        TempData["ErrorMessage"] = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                        await _userManager.AddToRoleAsync(user, "User");
                     }
 
-                    // Redirect admins to the user list page
-                    if (User.IsInRole("Admin"))
+                    // Redirect logic
+                    if (HttpContext.Session.GetString("UserRole") == "Admin")
                     {
+                        TempData["SuccessMessage"] = "Registration successful from admin!";
                         return RedirectToAction("Index", "Admin");
                     }
 
-                    // Redirect normal users to the home page
                     TempData["SuccessMessage"] = "Registration successful!";
                     return RedirectToAction("Index", "Home");
                 }
@@ -195,10 +214,8 @@ namespace BIMS.Controllers
 
             TempData["ErrorMessage"] = "Registration failed. Please correct the errors.";
 
-
-            // Ensure GenderId and other fields are populated
+            // Reload ViewData
             ViewData["GenderId"] = new SelectList(_context.Genders, "Id", "Name", user.GenderId);
-            // Pass the roles again if the user is an admin
             if (HttpContext.Session.GetString("UserRole") == "Admin")
             {
                 ViewData["Roles"] = new SelectList(new List<string> { "User", "DeliveryPerson" });
@@ -207,12 +224,6 @@ namespace BIMS.Controllers
             {
                 ViewData["Roles"] = null;
             }
-
-            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-            {
-                Console.WriteLine($"Error: {error.ErrorMessage}");
-            }
-
 
             return View(user);
         }

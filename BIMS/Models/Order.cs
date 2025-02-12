@@ -5,7 +5,7 @@ namespace BIMS.Models
     public class Order
     {
         public int Id { get; set; }
-        public string UserId { get; set; } // FK from Identity
+        public int UserId { get; set; } // FK from Identity
         public DateTime OrderDate { get; set; } = DateTime.Now;
         public decimal TotalAmount { get; set; }
         public string Status { get; set; } = "Pending"; // "Pending", "Shipped", "Delivered"

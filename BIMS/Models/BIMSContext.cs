@@ -24,7 +24,7 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
     public virtual DbSet<BuildingType> BuildingTypes { get; set; }
 
     public virtual DbSet<BusinessArea> BusinessAreas { get; set; }
-
+    public DbSet<Cart> Carts { get; set; }
     public virtual DbSet<Chat> Chats { get; set; }
 
     public virtual DbSet<ChatStatus> ChatStatuses { get; set; }
@@ -66,6 +66,8 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
     public virtual DbSet<NotificationStatus> NotificationStatuses { get; set; }
 
     public virtual DbSet<NotificationType> NotificationTypes { get; set; }
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
 
     public virtual DbSet<Owner> Owners { get; set; }
 
@@ -105,7 +107,7 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
 
     public virtual DbSet<UseType> UseTypes { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
+    public virtual new DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("name=BIMSConnection");
@@ -182,7 +184,23 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
             entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
 
-        modelBuilder.Entity<Chat>(entity =>
+   
+        modelBuilder.Entity<Cart>()
+            .Property(c => c.TotalPrice)
+            .HasPrecision(18, 2); // 18 total digits, 2 decimal places
+
+        modelBuilder.Entity<Order>()
+            .Property(o => o.TotalAmount)
+            .HasPrecision(18, 2); // Define precision
+
+        modelBuilder.Entity<OrderItem>()
+            .Property(oi => oi.Price)
+            .HasPrecision(18, 2); // Define precision
+    
+
+
+
+    modelBuilder.Entity<Chat>(entity =>
         {
             entity.Property(e => e.IsActive).HasDefaultValue(true);
 

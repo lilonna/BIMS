@@ -9,7 +9,7 @@ namespace BIMS.Models
     public class Cart
     {
         public int Id { get; set; }
-        public string UserId { get; set; } // FK from Identity
+        public int UserId { get; set; } // FK from Identity
         public int ItemId { get; set; } // FK from Product
         public int Quantity { get; set; }
         public decimal TotalPrice { get; set; } // Quantity * Product.Price

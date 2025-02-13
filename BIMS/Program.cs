@@ -2,6 +2,8 @@ using BIMS.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using BIMS.Repositories;
+using BIMS.Services;
 
 
 
@@ -20,7 +22,8 @@ builder.Services.AddIdentity<User, IdentityRole<int>>()
     .AddEntityFrameworkStores<BIMSContext>()
     .AddDefaultTokenProviders();
 
-
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();  // Register Repository
+builder.Services.AddScoped<IOrderService, OrderService>();        // Register Service
 
 builder.Services.AddSession(options =>
 {

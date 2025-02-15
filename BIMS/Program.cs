@@ -22,8 +22,12 @@ builder.Services.AddIdentity<User, IdentityRole<int>>()
     .AddEntityFrameworkStores<BIMSContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<ICartService, CartService>();
+
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();  // Register Repository
 builder.Services.AddScoped<IOrderService, OrderService>();        // Register Service
+
 
 builder.Services.AddSession(options =>
 {

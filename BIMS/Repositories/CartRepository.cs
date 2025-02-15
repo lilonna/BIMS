@@ -7,7 +7,7 @@ using BIMS.Models;
 
 namespace BIMS.Repositories
 {
-    public class CartRepository
+    public class CartRepository : ICartRepository
     {
         private readonly BIMSContext _context;
 
@@ -18,6 +18,10 @@ namespace BIMS.Repositories
 
         public async Task AddToCartAsync(Cart cart)
         {
+            if (cart.UserId == 0)
+            {
+                throw new Exception("Invalid UserId: Cannot add to cart.");
+            }
             await _context.Carts.AddAsync(cart);
             await _context.SaveChangesAsync();
         }
@@ -27,7 +31,9 @@ namespace BIMS.Repositories
             return await _context.Carts
                 .Include(c => c.Item)
                 .Where(c => c.UserId == userId)
-                .ToListAsync();
+         
+               .ToListAsync();
+          
         }
 
         public async Task RemoveFromCartAsync(int cartId)

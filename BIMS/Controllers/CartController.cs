@@ -24,22 +24,41 @@ namespace BIMS.Controllers
 
         // Show Cart View
         public async Task<IActionResult> Index()
+        {
+            try
+            {
+                int userId = HttpContext.Session.GetInt32("UserId") ?? 0;
+                if (userId == 0) return RedirectToAction("Login", "Users");
+
+                var cartItems = await _cartService.GetUserCartAsync(userId);
+                return View(cartItems);
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                Console.WriteLine($"Error in Cart Index: {ex.Message}");
+                return RedirectToAction("Error", "Home"); // Redirect to an error page
+            }
+        }
+
+        // Add Item to Cart
+        [HttpPost]
+        public async Task<IActionResult> AddToCart(int itemId, int quantity)
+
+
     {
-        int userId = HttpContext.Session.GetInt32("UserId") ?? 0;
-        if (userId == 0) return RedirectToAction("Login", "Users"); // Redirect if not logged in
 
-        var cartItems = await _cartService.GetUserCartAsync(userId);
-        return View(cartItems);
-    }
+            try
+            {
+                int userId = HttpContext.Session.GetInt32("UserId") ?? 0;
+                Console.WriteLine($"DEBUG: UserId in AddToCart: {userId}");
+                if (userId == 0)
+                {
+                    return Json(new { success = false, message = "You must be logged in to add items to the cart." });
+                }
 
-    // Add Item to Cart
-    public async Task<IActionResult> AddToCart(int itemId, int quantity)
-    {
-        int userId = HttpContext.Session.GetInt32("UserId") ?? 0;
-        if (userId == 0) return RedirectToAction("Login", "Users");
-
-            // Fetch the item from the database to get the price
-            var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == itemId);
+                // Fetch the item from the database to get the price
+                var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == itemId);
 
             if (item == null) return NotFound(); // Handle case where the item doesn't exist
 
@@ -59,11 +78,16 @@ namespace BIMS.Controllers
             // Update cart count in session
             var cartCount = await _cartService.GetCartCountAsync(userId);
             HttpContext.Session.SetInt32("CartCount", cartCount);
-            return RedirectToAction("Index");
-    }
+            return Json(new { success = true, message = "Item added to cart successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
 
-    // Remove Item from Cart
-    public async Task<IActionResult> RemoveFromCart(int cartId)
+        // Remove Item from Cart
+        public async Task<IActionResult> RemoveFromCart(int cartId)
     {
         await _cartService.RemoveFromCartAsync(cartId);
         return RedirectToAction("Index", "Cart");

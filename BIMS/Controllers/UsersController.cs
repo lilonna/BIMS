@@ -77,7 +77,7 @@ namespace BIMS.Controllers
                
                    
                     // Store admin details in session
-                    HttpContext.Session.SetString("UserId", "0");
+                    HttpContext.Session.SetString("UserId", "1");
                     HttpContext.Session.SetString("UserRole", "Admin");
                     HttpContext.Session.SetString("UserName", "Administrator");
 

@@ -60,15 +60,19 @@
                             <img src="@item.ImagePath" class="card-img-top" alt="Product Image"
                                  style="height: 150px; object-fit: cover; border-bottom: 1px solid #f1f1f1;" />
                             <div class="card-body" style="padding:5px;">
+
+
                                 <a asp-action="Details" asp-route-id="@item.Id" asp-controller="Items">
                                     <h5 class="card-title" style="font-size: 1rem; margin-bottom: 2px;">@item.Name</h5>
                                 </a>
+                                <button onclick="addToCart(@item.Id, 1)">Buy</button>
                                 <h6 class="card-title" style="font-size: 0.8rem; margin-bottom: 2px;">@item.Price</h6>
                                 <p class="card-text text-muted" style="font-size: 0.8rem; margin-bottom: 2px;">
                                     @item.ItemCategory.Name<br />
                                     @(item.IsAvailable ? "Available" : "Not Available at the moment")
                                 </p>
-                                <button onclick="addToCart(@item.Id, @item.Price)">Buy</button>
+                               
+
 
                             </div>
                         </div>
@@ -110,16 +114,29 @@
         </div>
     </div>
 </div>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-    function addToCart(itemId, price) {
-        fetch('/api/cart/add?itemId=' + itemId + '&quantity=1&price=' + price, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        })
-            .then(response => response.json())
-            .then(data => alert(data.message))
-            .catch(error => console.error('Error:', error));
-    }
+function addToCart(itemId, quantity) {
+    $.ajax({
+        type: 'POST',
+        url: '@Url.Action("AddToCart", "Cart")', // The controller action URL
+         
+
+        data: {
+            itemId: itemId,
+            quantity: quantity
+            }, xhrFields: { withCredentials: true },
+        success: function (response) {
+            // Handle response (e.g., show a success message, update the cart count, etc.)
+            alert('Item added to cart!');
+        },
+        error: function (xhr, status, error) {
+            // Handle error (e.g., show an error message)
+                console.log('Error:', error);
+                console.error(xhr.responseText);
+                alert('Error adding item to cart.');
+        }
+    });
+}
 </script>

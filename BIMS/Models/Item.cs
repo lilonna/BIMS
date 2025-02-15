@@ -23,6 +23,7 @@ public partial class Item
     public bool IsActive { get; set; }
 
     public bool IsDeleted { get; set; }
+    public int Stock { get; set; }
 
     public string ImagePath { get; set; }
 

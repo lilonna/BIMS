@@ -6,9 +6,10 @@ namespace BIMS.Services
 {
     public interface ICartService
     {
-        Task AddToCartAsync(int userId, int itemId, int quantity, decimal price);
+        Task AddToCartAsync(Cart cart);
         Task<List<Cart>> GetUserCartAsync(int userId);
         Task RemoveFromCartAsync(int cartId);
         Task ClearCartAsync(int userId);
+        Task<int> GetCartCountAsync(int userId);
     }
 }

@@ -78,6 +78,10 @@
                             </li>
                         </ul>
                     </div>
+                    <a href="@Url.Action("Index", "Cart")">
+                        <i class="fa fa-shopping-cart"></i>
+                        <span>@(Context.Session.GetInt32("CartCount") ?? 0)</span>
+                    </a>
 
 
 

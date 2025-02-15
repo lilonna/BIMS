@@ -6,8 +6,9 @@ namespace BIMS.Services {
 
     public interface IOrderService
     {
-        Task<Order> PlaceOrderAsync(int userId, List<OrderItem> items);
+        Task<Order> CreateOrderAsync(int userId, List<OrderItem> items);
         Task<List<Order>> GetUserOrdersAsync(int userId);
+        Task<Order> GetOrderByIdAsync(int orderId);
     }
 
 }

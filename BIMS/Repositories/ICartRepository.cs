@@ -10,5 +10,6 @@ namespace BIMS.Repositories
         Task<List<Cart>> GetUserCartAsync(int userId);
         Task RemoveFromCartAsync(int cartId);
         Task ClearCartAsync(int userId);
+        Task<int> GetCartCountAsync(int userId);
     }
 }

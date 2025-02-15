@@ -29,5 +29,11 @@ namespace BIMS.Repositories
         {
             return await _context.Orders.Where(o => o.UserId == userId).ToListAsync();
         }
+        public async Task<Order> GetOrderByIdAsync(int orderId)
+        {
+            return await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+        }
     }
 }

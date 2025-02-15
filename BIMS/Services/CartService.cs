@@ -15,16 +15,9 @@ namespace BIMS.Services
             _cartRepository = cartRepository;
         }
 
-        public async Task AddToCartAsync(int userId, int itemId, int quantity, decimal price)
+        public async Task AddToCartAsync(Cart cart)
         {
-            var cartItem = new Cart
-            {
-                UserId = userId,
-                ItemId = itemId,
-                Quantity = quantity,
-                TotalPrice = price
-            };
-            await _cartRepository.AddToCartAsync(cartItem);
+            await _cartRepository.AddToCartAsync(cart);
         }
 
         public async Task<List<Cart>> GetUserCartAsync(int userId)
@@ -40,6 +33,10 @@ namespace BIMS.Services
         public async Task ClearCartAsync(int userId)
         {
             await _cartRepository.ClearCartAsync(userId);
+        }
+        public async Task<int> GetCartCountAsync(int userId)  // Implement this method
+        {
+            return await _cartRepository.GetCartCountAsync(userId);  // Assuming repository has this method
         }
     }
 }

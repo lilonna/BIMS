@@ -46,5 +46,9 @@ namespace BIMS.Repositories
             _context.Carts.RemoveRange(cartItems);
             await _context.SaveChangesAsync();
         }
+        public async Task<int> GetCartCountAsync(int userId)  // Implement this method
+        {
+            return await _context.Carts.Where(c => c.UserId == userId).CountAsync();
+        }
     }
 }

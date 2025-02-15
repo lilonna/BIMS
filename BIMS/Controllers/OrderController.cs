@@ -1,18 +1,12 @@
 ﻿using BIMS.Models;
-using Microsoft.AspNetCore.Mvc;
 using BIMS.Services;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 
 namespace BIMS.Controllers
 {
-    [Route("api/[controller]")]
-
-    [ApiController]
-    [Authorize]
-    public class OrderController : ControllerBase
+    public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
 
@@ -21,33 +15,48 @@ namespace BIMS.Controllers
             _orderService = orderService;
         }
 
-        [HttpPost("place")]
-        public async Task<IActionResult> PlaceOrder([FromBody] List<OrderItem> items)
+        // Place an order and redirect to order confirmation page
+        [HttpPost]
+        public async Task<IActionResult> PlaceOrder(List<OrderItem> items)
         {
-            int? userId = HttpContext.Session.GetInt32("UserId");  // Retrieve User ID from session
+            int? userId = HttpContext.Session.GetInt32("UserId"); // Retrieve User ID from session
 
             if (userId == null)
             {
-                return Unauthorized(new { message = "User not authenticated" });
+                TempData["Error"] = "You must be logged in to place an order.";
+                return RedirectToAction("Login", "Account"); // Redirect to login page
             }
 
-            var order = await _orderService.PlaceOrderAsync(userId.Value, items);
-            return Ok(order);
+            var order = await _orderService.CreateOrderAsync(userId.Value, items);
+            return RedirectToAction("OrderDetails", new { orderId = order.Id });
         }
 
-        [HttpGet("my-orders")]
-        public async Task<IActionResult> GetUserOrders()
+        // View list of orders (shows orders page)
+        public async Task<IActionResult> MyOrders()
         {
-            int? userId = HttpContext.Session.GetInt32("UserId");  // Retrieve User ID from session
+            int? userId = HttpContext.Session.GetInt32("UserId");
 
             if (userId == null)
             {
-                return Unauthorized(new { message = "User not authenticated" });
+                TempData["Error"] = "You must be logged in to view your orders.";
+                return RedirectToAction("Login", "Account"); // Redirect to login
             }
 
             var orders = await _orderService.GetUserOrdersAsync(userId.Value);
-            return Ok(orders);
+            return View(orders); // Pass orders to Razor view
+        }
+
+        // View order details
+        public async Task<IActionResult> OrderDetails(int orderId)
+        {
+            var order = await _orderService.GetOrderByIdAsync(orderId);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            return View(order); // Pass order to view
         }
     }
 }
-

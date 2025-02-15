@@ -61,5 +61,16 @@ namespace BIMS.Services
         {
             return await _orderRepository.GetOrderByIdAsync(orderId);
         }
+
+
+        public async Task<Order> GetOrderDetailsAsync(int userId)
+        {
+            // Get the latest order for the user
+            return await _context.Orders
+                                 .Where(o => o.UserId == userId)
+                                 .OrderByDescending(o => o.OrderDate)
+                                 .FirstOrDefaultAsync(); // You can order by OrderDate or other relevant fields
+        }
+
     }
 }

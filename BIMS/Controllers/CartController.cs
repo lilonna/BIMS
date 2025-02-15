@@ -59,8 +59,9 @@ namespace BIMS.Controllers
 
                 // Fetch the item from the database to get the price
                 var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == itemId);
+              
 
-            if (item == null) return NotFound(); // Handle case where the item doesn't exist
+                if (item == null) return NotFound(); // Handle case where the item doesn't exist
 
             decimal itemPrice = item.Price; // Assuming your Item model has a Price field
 
@@ -82,7 +83,7 @@ namespace BIMS.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Error: " + ex.Message });
+                return Json(new { success = false, message = "Database error: " + ex.InnerException?.Message ?? ex.Message });
             }
         }
 
@@ -141,8 +142,23 @@ namespace BIMS.Controllers
         // Order Confirmation (you can customize this to show order details)
         public IActionResult OrderConfirmation()
         {
-            return View();
+            var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
+
+            // Fetch the order with its order items from the database
+            var order = _context.Orders
+                                .Include(o => o.OrderItems)
+                                .ThenInclude(oi => oi.Item)  // Assuming 'Item' is the related model for the items
+                                .FirstOrDefault(o => o.UserId == userId && o.Status == "Completed");
+
+            if (order == null)
+            {
+                // Handle the case when no order is found
+                return RedirectToAction("Index", "Cart");
+            }
+
+            return View(order); // Pass the order object (which includes OrderItems) to the view
         }
+
 
         // Clear Cart
         public async Task<IActionResult> ClearCart()

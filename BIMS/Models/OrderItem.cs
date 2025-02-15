@@ -15,6 +15,10 @@ namespace BIMS.Models
 
         [ForeignKey("ItemId")]
         public virtual Item Item { get; set; }
+
+        // Total Price is the price times the quantity
+        public decimal TotalPrice => Price * Quantity;
+
     }
 
 }

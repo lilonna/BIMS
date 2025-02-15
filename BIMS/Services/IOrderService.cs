@@ -9,6 +9,7 @@ namespace BIMS.Services {
         Task<Order> CreateOrderAsync(int userId, List<OrderItem> items);
         Task<List<Order>> GetUserOrdersAsync(int userId);
         Task<Order> GetOrderByIdAsync(int orderId);
+        Task<Order> GetOrderDetailsAsync(int userId);
     }
 
 }

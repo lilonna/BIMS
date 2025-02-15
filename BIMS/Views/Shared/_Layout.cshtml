@@ -59,7 +59,7 @@
                        
                     </div>
 
-                    @if (Context.Session.GetString("UserId") != null)
+                @if (Context.Session.GetInt32("UserId") != null)
                     {
 
                     <div class="dropdown">

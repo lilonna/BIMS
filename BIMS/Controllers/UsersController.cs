@@ -77,7 +77,7 @@ namespace BIMS.Controllers
                
                    
                     // Store admin details in session
-                    HttpContext.Session.SetString("UserId", "1");
+                    HttpContext.Session.SetString("UserId", "0");
                     HttpContext.Session.SetString("UserRole", "Admin");
                     HttpContext.Session.SetString("UserName", "Administrator");
 
@@ -101,9 +101,9 @@ namespace BIMS.Controllers
                 return View();
             }
 
-            // Store user information in session
-            HttpContext.Session.SetString("UserId", user.Id.ToString());
-            HttpContext.Session.SetString("UserName", user.FirstName);
+            HttpContext.Session.SetInt32("UserId", user.Id); // Store as int
+            HttpContext.Session.SetString("UserName", user.FirstName); // Store the name as a string
+
 
             TempData["SuccessMessage"] = $"Welcome, {user.FirstName}!";
             return RedirectToAction("Index", "Home");

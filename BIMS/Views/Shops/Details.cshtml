@@ -128,14 +128,15 @@ function addToCart(itemId, quantity) {
             quantity: quantity
             }, xhrFields: { withCredentials: true },
         success: function (response) {
-            // Handle response (e.g., show a success message, update the cart count, etc.)
-            alert('Item added to cart!');
+                if (response.success) {
+                    alert(response.message); // Show success message
+                } else {
+                    alert("Error: " + response.message); // Show error message
+                }
         },
-        error: function (xhr, status, error) {
+        error: function (xhr) {
             // Handle error (e.g., show an error message)
-                console.log('Error:', error);
-                console.error(xhr.responseText);
-                alert('Error adding item to cart.');
+                alert("An unexpected error occurred: " + xhr.responseText);
         }
     });
 }

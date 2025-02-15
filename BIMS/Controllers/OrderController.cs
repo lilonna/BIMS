@@ -3,12 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using BIMS.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BIMS.Controllers
 {
     [Route("api/[controller]")]
+
     [ApiController]
+    [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _orderService;

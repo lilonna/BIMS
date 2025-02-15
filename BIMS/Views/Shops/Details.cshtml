@@ -68,6 +68,7 @@
                                     @item.ItemCategory.Name<br />
                                     @(item.IsAvailable ? "Available" : "Not Available at the moment")
                                 </p>
+                                <button onclick="addToCart(@item.Id, @item.Price)">Buy</button>
 
                             </div>
                         </div>
@@ -109,5 +110,16 @@
         </div>
     </div>
 </div>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
-
+<script>
+    function addToCart(itemId, price) {
+        fetch('/api/cart/add?itemId=' + itemId + '&quantity=1&price=' + price, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error('Error:', error));
+    }
+</script>

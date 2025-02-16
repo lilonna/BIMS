@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace BIMS.Services
 {
@@ -12,10 +13,12 @@ namespace BIMS.Services
     {
         private readonly IOrderRepository _orderRepository;
         private readonly BIMSContext _context;
-        public OrderService(IOrderRepository orderRepository, BIMSContext context)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public OrderService(IOrderRepository orderRepository, BIMSContext context, IHttpContextAccessor httpContextAccessor)
         {
             _orderRepository = orderRepository;
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Order> CreateOrderAsync(int userId, List<OrderItem> items)
@@ -48,6 +51,7 @@ namespace BIMS.Services
             }
 
             await _context.SaveChangesAsync(); // Save the order items to database
+            _httpContextAccessor.HttpContext?.Session.SetInt32("LastOrderId", order.Id);
 
             return order;
         }

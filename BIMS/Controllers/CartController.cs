@@ -119,6 +119,14 @@ namespace BIMS.Controllers
                 Price = ci.TotalPrice
             }).ToList());
 
+            if (order == null)
+            {
+                return RedirectToAction("Index"); // Order failed
+            }
+
+       
+
+
             // Update stock for the items in the cart
             foreach (var item in cartItems)
             {
@@ -143,6 +151,13 @@ namespace BIMS.Controllers
         public IActionResult OrderConfirmation()
         {
             var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
+            int? lastOrderId = HttpContext.Session.GetInt32("LastOrderId");
+
+            if (lastOrderId == null)
+            {
+                return RedirectToAction("Index", "Cart");
+            }
+
 
             // Fetch the order with its order items from the database
             var order = _context.Orders

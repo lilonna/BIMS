@@ -18,9 +18,10 @@ namespace BIMS.Controllers
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             // Check if user is logged in
-            var userIdString = HttpContext.Session.GetString("UserId");
-            if (int.TryParse(userIdString, out int userId))
+            var loggedInUserId = HttpContext.Session.GetInt32("UserId");
+            if (loggedInUserId.HasValue)
             {
+                int userId = loggedInUserId.Value;
                 // Fetch shops owned by the logged-in user
                 var userShops = _context.Shops
                     .Where(shop => shop.UserId == userId) 

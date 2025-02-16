@@ -160,27 +160,27 @@ namespace BIMS.Controllers
         public IActionResult Create(int?userId)
         {
             // Check if the user is logged in by verifying the session
-            var loggedInUserId = HttpContext.Session.GetString("UserId");
-            if (string.IsNullOrEmpty(loggedInUserId))
+            var loggedInUserId = HttpContext.Session.GetInt32("UserId");
+            if (loggedInUserId == null)
             {
                 TempData["ErrorMessage"] = "You are not logged in. Please log in to create a shop.";
                 return RedirectToAction("Login", "Users"); 
             }
-           
-            if (!int.TryParse(loggedInUserId, out int loggedUserId))
-            {
-                TempData["ErrorMessage"] = "Invalid session user ID.";
-                return RedirectToAction("Login", "Users");
-            }
+
+            //if (userId != null && userId != loggedInUserId)
+            //{
+            //    TempData["ErrorMessage"] = "Invalid session user ID.";
+            //    return RedirectToAction("Login", "Users");
+            //}
 
             // Ensure that the provided `userId` matches the logged-in user's ID
-            if (userId != null && userId != loggedUserId)
+            if (userId != null && userId != loggedInUserId)
             {
                 TempData["ErrorMessage"] = "You are not authorized to create a shop.";
                 return RedirectToAction("Index", "Shops");
             }
             // Pass the logged-in user's ID to the View
-            ViewData["UserId"] = loggedUserId;
+            ViewData["UserId"] = loggedInUserId;
 
             ViewData["BusinessAreaId"] = new SelectList(_context.BusinessAreas, "Id", "Name");
 
@@ -263,13 +263,13 @@ namespace BIMS.Controllers
         [HttpGet]
         public async Task<IActionResult> HasShop()
         {
-            var loggedInUserId = HttpContext.Session.GetString("UserId");
+            var loggedInUserId = HttpContext.Session.GetInt32("UserId");
 
-            if (string.IsNullOrEmpty(loggedInUserId) || !int.TryParse(loggedInUserId, out int userId))
+            if (!loggedInUserId.HasValue)
             {
                 return Json(new { hasShop = false });
             }
-
+            int userId = loggedInUserId.Value;
             var hasShop = await _context.Shops.AnyAsync(s => s.UserId == userId && !s.IsDeleted);
             return Json(new { hasShop });
         }
@@ -278,13 +278,14 @@ namespace BIMS.Controllers
         [HttpGet("Shops/ShopDashboard/{shopId}")]
         public async Task<IActionResult> ShopDashboard(int shopId)
         {
-            var loggedInUserId = HttpContext.Session.GetString("UserId");
+            var loggedInUserId = HttpContext.Session.GetInt32("UserId");
 
-            if (string.IsNullOrEmpty(loggedInUserId) || !int.TryParse(loggedInUserId, out int userId))
+            if (!loggedInUserId.HasValue)
             {
                 TempData["ErrorMessage"] = "You are not logged in. Please log in to access this page.";
                 return RedirectToAction("Login", "Users"); 
             }
+            int userId = loggedInUserId.Value;
 
             // Fetch the shop details and ensure it belongs to the logged-in user
             var shop = await _context.Shops
@@ -315,7 +316,7 @@ namespace BIMS.Controllers
         public async Task<IActionResult> Edit(int? id,int?userId){
 
             // Check if the user is logged in by verifying the session or authentication
-            var loggedInUserId = HttpContext.Session.GetString("UserId");
+            var loggedInUserId = HttpContext.Session.GetInt32("UserId");
             if (id == null)
             {
                 return NotFound();
@@ -375,7 +376,7 @@ namespace BIMS.Controllers
         public async Task<IActionResult> Delete(int? id)
         {
             // Check if the user is logged in by verifying the session or authentication
-            var loggedInUserId = HttpContext.Session.GetString("UserId");
+            var loggedInUserId = HttpContext.Session.GetInt32("UserId");
             if (id == null)
             {
                 return NotFound();

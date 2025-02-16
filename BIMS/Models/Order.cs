@@ -8,6 +8,8 @@ namespace BIMS.Models
         public int UserId { get; set; } // FK from Identity
         public DateTime OrderDate { get; set; } = DateTime.Now;
         public decimal TotalAmount { get; set; }
+        public string ShippingAddress { get; set; }
+
         public string Status { get; set; } = "Pending"; // "Pending", "Shipped", "Delivered"
         public string PaymentStatus { get; set; } = "Unpaid"; // "Paid" after Chapa payment
 

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using BIMS.Repositories;
 
 namespace BIMS.Controllers
 {
@@ -14,15 +15,16 @@ namespace BIMS.Controllers
     private readonly ICartService _cartService;
         private readonly BIMSContext _context;
         private readonly IOrderService _orderService;
+        private readonly INotificationService _notificationService;
+    
 
-        public CartController(ICartService cartService, BIMSContext context, IOrderService orderService)
+        public CartController(ICartService cartService, BIMSContext context, IOrderService orderService, INotificationService notificationService)
         {
             _cartService = cartService;
             _context = context;
             _orderService = orderService;
+            _notificationService = notificationService;
         }
-
-        // Show Cart View
         public async Task<IActionResult> Index()
         {
             try
@@ -35,19 +37,14 @@ namespace BIMS.Controllers
             }
             catch (Exception ex)
             {
-                // Log the error
                 Console.WriteLine($"Error in Cart Index: {ex.Message}");
-                return RedirectToAction("Error", "Home"); // Redirect to an error page
+                return RedirectToAction("Error", "Home");
             }
         }
-
-        // Add Item to Cart
         [HttpPost]
         public async Task<IActionResult> AddToCart(int itemId, int quantity)
 
-
     {
-
             try
             {
                 int userId = HttpContext.Session.GetInt32("UserId") ?? 0;
@@ -56,27 +53,15 @@ namespace BIMS.Controllers
                 {
                     return Json(new { success = false, message = "You must be logged in to add items to the cart." });
                 }
-
-                // Fetch the item from the database to get the price
                 var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == itemId);
-              
-
-                if (item == null) return NotFound(); // Handle case where the item doesn't exist
-
-            decimal itemPrice = item.Price; // Assuming your Item model has a Price field
-
-         
-
-
-
+                if (item == null) return NotFound(); 
+            decimal itemPrice = item.Price;
             Cart cart = new Cart
             { UserId = userId, 
               ItemId = itemId, 
               Quantity = quantity, 
               TotalPrice = item.Price * quantity };
-
-        await _cartService.AddToCartAsync(cart);
-            // Update cart count in session
+                    await _cartService.AddToCartAsync(cart);
             var cartCount = await _cartService.GetCartCountAsync(userId);
             HttpContext.Session.SetInt32("CartCount", cartCount);
             return Json(new { success = true, message = "Item added to cart successfully!" });
@@ -87,95 +72,149 @@ namespace BIMS.Controllers
             }
         }
 
-        // Remove Item from Cart
-        public async Task<IActionResult> RemoveFromCart(int cartId)
-    {
-        await _cartService.RemoveFromCartAsync(cartId);
-        return RedirectToAction("Index", "Cart");
-    }
-        // Checkout Action
+        // Checkout Page (Shows Order Summary & User Info Form)
         public async Task<IActionResult> Checkout()
         {
-            int userId = HttpContext.Session.GetInt32("UserId") ?? 0;
-            if (userId == 0) return RedirectToAction("Login", "Users");
-
-            // Get the user's cart
-            var cartItems = await _cartService.GetUserCartAsync(userId);
-
-            if (cartItems == null || cartItems.Count == 0)
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
             {
-                // If the cart is empty, redirect the user
-                return RedirectToAction("Index");
+                TempData["Error"] = "You must be logged in to proceed to checkout.";
+                return RedirectToAction("Login", "Account");
             }
 
-            // You can add any additional checkout processing here, such as payment, etc.
-
-            // Process the order - assuming you have an OrderService to handle this logic
-            // Process the order - now it uses CreateOrderAsync
-            var order = await _orderService.CreateOrderAsync(userId, cartItems.Select(ci => new OrderItem
+            var cartItems = await _cartService.GetUserCartAsync(userId.Value);
+            if (cartItems.Count == 0)
             {
-                ItemId = ci.ItemId,
-                Quantity = ci.Quantity,
-                Price = ci.TotalPrice
-            }).ToList());
-
-            if (order == null)
-            {
-                return RedirectToAction("Index"); // Order failed
+                TempData["Error"] = "Your cart is empty.";
+                return RedirectToAction("ViewCart", "Cart");
             }
 
-       
+            ViewBag.TotalAmount = cartItems.Sum(i => i.TotalPrice * i.Quantity);
+            return View(cartItems); // Show user a checkout form
+        }
+        // 💳 Proceed to Checkout
+        public async Task<IActionResult> ProceedToCheckout()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
+            var cartItems = await _context.Carts
+                                          .Include(ci => ci.Item)
+                                          .Where(ci => ci.UserId == userId)
+                                          .ToListAsync();
 
-
-            // Update stock for the items in the cart
-            foreach (var item in cartItems)
+            if (!cartItems.Any())
             {
-                var product = await _context.Items.FirstOrDefaultAsync(i => i.Id == item.ItemId);
-                if (product != null)
-                {
-                    product.Stock -= item.Quantity; // Reduce stock based on cart quantity
-                    _context.Items.Update(product);
-                }
+                return RedirectToAction("Index", "Cart");
             }
 
-            await _context.SaveChangesAsync(); // Save the updated stock
+            var totalAmount = cartItems.Sum(i => i.Item.Price * i.Quantity);
+            ViewBag.TotalAmount = totalAmount;  // ✅ Send total amount to view
 
-            // Clear the cart after checkout
-            await _cartService.ClearCartAsync(userId);
+            return View(cartItems);
+        }
 
-            // Redirect to a confirmation page or order details page
+
+
+
+
+        public async Task<IActionResult> RemoveFromCart(int cartId)
+        {
+            await _cartService.RemoveFromCartAsync(cartId);
+            return RedirectToAction("Index", "Cart");
+        }
+        //    }   public async Task<IActionResult> Checkout()
+        //        {
+        //            int userId = HttpContext.Session.GetInt32("UserId") ?? 0;
+        //            if (userId == 0) return RedirectToAction("Login", "Users");
+        //            var cartItems = await _cartService.GetUserCartAsync(userId);
+
+        //            if (cartItems == null || cartItems.Count == 0)
+        //            {
+        //                return RedirectToAction("Index");
+        //            }
+        //            var order = await _orderService.CreateOrderAsync(userId, cartItems.Select(ci => new OrderItem
+        //            {
+        //                ItemId = ci.ItemId,
+        //                Quantity = ci.Quantity,
+        //                Price = ci.TotalPrice
+        //            }).ToList());
+
+        //            if (order == null)
+        //            {
+        //                return RedirectToAction("Index"); 
+        //            }
+        //            foreach (var item in cartItems)
+        //            {
+        //                var product = await _context.Items.FirstOrDefaultAsync(i => i.Id == item.ItemId);
+        //                if (product != null)
+        //                {
+        //                    product.Stock -= item.Quantity; 
+        //                    _context.Items.Update(product);
+        //                }
+        //            }
+        //await _context.SaveChangesAsync(); 
+        //            await _cartService.ClearCartAsync(userId);
+        //            return RedirectToAction("OrderConfirmation");
+        //        }
+
+        // Process Checkout (Saves Order & Notifies Admin + Shop Owner)
+        [HttpPost]
+        public async Task<IActionResult> CheckoutConfirm(string address, string contactNumber)
+        {
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                TempData["Error"] = "You must be logged in to checkout.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var cartItems = await _cartService.GetUserCartAsync(userId.Value);
+            if (cartItems.Count == 0)
+            {
+                TempData["Error"] = "Your cart is empty.";
+                return RedirectToAction("ViewCart", "Cart");
+            }
+
+            var order = await _orderService.CreateOrderAsync(userId.Value, cartItems, address, contactNumber);
+
+            // Notify admin & shop owners
+            await _notificationService.NotifyAdmin(order);
+            await _notificationService.NotifyShopOwner(order);
+
+            // Clear the cart
+            await _cartService.ClearCartAsync(userId.Value);
+
+            TempData["Success"] = "Thank you for shopping with us!";
             return RedirectToAction("OrderConfirmation");
         }
 
-        // Order Confirmation (you can customize this to show order details)
+        // Order Confirmation Page
         public IActionResult OrderConfirmation()
         {
-            var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
-            int? lastOrderId = HttpContext.Session.GetInt32("LastOrderId");
-
-            if (lastOrderId == null)
-            {
-                return RedirectToAction("Index", "Cart");
-            }
-
-
-            // Fetch the order with its order items from the database
-            var order = _context.Orders
-                                .Include(o => o.OrderItems)
-                                .ThenInclude(oi => oi.Item)  // Assuming 'Item' is the related model for the items
-                                .FirstOrDefault(o => o.UserId == userId && o.Status == "Completed");
-
-            if (order == null)
-            {
-                // Handle the case when no order is found
-                return RedirectToAction("Index", "Cart");
-            }
-
-            return View(order); // Pass the order object (which includes OrderItems) to the view
+            return View();
         }
 
 
-        // Clear Cart
+        //public IActionResult OrderConfirmation()
+        //{
+        //    var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
+        //    int? lastOrderId = HttpContext.Session.GetInt32("LastOrderId");
+
+        //    if (lastOrderId == null)
+        //    {
+        //        return RedirectToAction("Index", "Cart");
+        //    }
+        //    var order = _context.Orders
+        //                        .Include(o => o.OrderItems)
+        //                        .ThenInclude(oi => oi.Item)  
+        //                        .FirstOrDefault(o => o.UserId == userId && o.Status == "Completed");
+
+        //    if (order == null)
+        //    {
+        //        return RedirectToAction("Index", "Cart");
+        //    }
+
+        //    return View(order); 
+        //}
         public async Task<IActionResult> ClearCart()
     {
         int userId = HttpContext.Session.GetInt32("UserId") ?? 0;

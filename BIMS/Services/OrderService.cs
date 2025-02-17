@@ -21,7 +21,7 @@ namespace BIMS.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<Order> CreateOrderAsync(int userId, List<OrderItem> items)
+        public async Task<Order> CreateOrderAsync(int userId, List<OrderItem> items, string address, string contactNumber)
         {
             var totalAmount = items.Sum(i => i.Price * i.Quantity);
             var order = new Order

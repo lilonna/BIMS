@@ -12,50 +12,49 @@ namespace BIMS.Services
             _context = context;
         }
 
-        public async Task NotifyAdminAndShopOwner(Order order)
+        public async Task NotifyAdmin(Order order)
         {
-
-
-
             var adminChat = new Chat
             {
-                SenderId = 0, // Assuming 0 is Admin ID (use correct Admin ID here)
-                ReceiverId = 1, // Assuming 1 is the Admin's User ID
+                SenderId = 0, // Assuming 0 is Admin ID (update as needed)
+                ReceiverId = 1, // Assuming 1 is Admin's User ID
                 Message = $"New order placed! Order ID: {order.Id}",
                 IsActive = true,
                 IsDeleted = false,
                 Date = DateOnly.FromDateTime(DateTime.UtcNow),
-                ChatStatusId = 1 // Assuming 1 is the default Chat Status ID (adjust as necessary)
+                ChatStatusId = 1 // Adjust as needed
             };
 
-            // Fetch the Shop ID from the first Order Item
-            var item = order.OrderItems.First().Item;
-            var shopId = item.ShopId;
+            await _context.Chats.AddAsync(adminChat);
+            await _context.SaveChangesAsync();
+        }
 
-            // Retrieve the Shop to get the Shop Owner's UserId
-            var shop = await _context.Shops
-                                      .Where(s => s.Id == shopId)
-                                      .FirstOrDefaultAsync();
-
-            // If the shop is found and the UserId exists, create the shop owner chat
-            if (shop != null )
-
+        public async Task NotifyShopOwner(Order order)
+        {
+            var item = order.OrderItems.FirstOrDefault();
+            if (item != null)
             {
-                var shopOwnerChat = new Chat
-                {
-                    SenderId = 0, // Assuming 0 is Admin ID (use correct Admin ID here)
-                    ReceiverId = shop.UserId,
-                    Message = $"New order received for your item. Order ID: {order.Id}",
-                    IsActive = true,
-                    IsDeleted = false,
-                    Date = DateOnly.FromDateTime(DateTime.UtcNow),
-                    ChatStatusId = 1 // Assuming 1 is the default Chat Status ID (adjust as necessary)
-                };
+                var shop = await _context.Shops.FirstOrDefaultAsync(s => s.Id == item.Item.ShopId);
 
-                await _context.Chats.AddRangeAsync(adminChat, shopOwnerChat);
-                await _context.SaveChangesAsync();
+                if (shop != null)
+                {
+                    var shopOwnerChat = new Chat
+                    {
+                        SenderId = 0, // Assuming 0 is Admin ID (update as needed)
+                        ReceiverId = shop.UserId,
+                        Message = $"New order received for your item. Order ID: {order.Id}",
+                        IsActive = true,
+                        IsDeleted = false,
+                        Date = DateOnly.FromDateTime(DateTime.UtcNow),
+                        ChatStatusId = 1 // Adjust as needed
+                    };
+
+                    await _context.Chats.AddAsync(shopOwnerChat);
+                    await _context.SaveChangesAsync();
+                }
             }
         }
+
 
     }
 }

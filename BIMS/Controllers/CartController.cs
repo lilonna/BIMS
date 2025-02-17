@@ -174,7 +174,14 @@ namespace BIMS.Controllers
                 return RedirectToAction("ViewCart", "Cart");
             }
 
-            var order = await _orderService.CreateOrderAsync(userId.Value, cartItems, address, contactNumber);
+            var orderItems = cartItems.Select(cart => new OrderItem
+            {
+                ItemId = cart.ItemId,
+                Quantity = cart.Quantity,
+                Price = cart.TotalPrice
+            }).ToList();
+
+            var order = await _orderService.CreateOrderAsync(userId.Value, orderItems, address, contactNumber);
 
             // Notify admin & shop owners
             await _notificationService.NotifyAdmin(order);

@@ -15,7 +15,7 @@ namespace BIMS.Controllers
             _orderService = orderService;
         }
         [HttpPost]
-        public async Task<IActionResult> PlaceOrder(List<OrderItem> items)
+        public async Task<IActionResult> PlaceOrder(List<OrderItem> items, string address, string contactNumber)
         {
             int? userId = HttpContext.Session.GetInt32("UserId"); 
 
@@ -25,7 +25,7 @@ namespace BIMS.Controllers
                 return RedirectToAction("Login", "Account"); 
             }
 
-            var order = await _orderService.CreateOrderAsync(userId.Value, items);
+            var order = await _orderService.CreateOrderAsync(userId.Value, items, address, contactNumber);
             return RedirectToAction("OrderDetails", new { orderId = order.Id });
         }
         public async Task<IActionResult> MyOrders()

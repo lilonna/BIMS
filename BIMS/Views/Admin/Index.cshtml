@@ -1,6 +1,9 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
+
+@model List<BIMS.Models.Notification>
+
 @{
 }
 @{
@@ -45,3 +48,23 @@
     </div>
    
 </div>
+<h3>Notifications</h3>
+@if (Model.Any())
+{
+    <ul class="list-group">
+        @foreach (var notification in Model)
+        {
+            <li class="list-group-item @(notification.IsRead ? "text-muted" : "font-weight-bold")">
+                @notification.Message - @notification.NotificationDate.ToLocalTime().ToString("MMM dd, yyyy HH:mm")
+                @if (!notification.IsRead)
+                {
+                    <a asp-action="MarkAsRead" asp-route-notificationId="@notification.Id" class="btn btn-sm btn-success float-end">Mark as Read</a>
+                }
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No new notifications.</p>
+}

@@ -1,6 +1,7 @@
 ﻿using BIMS.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BIMS.Controllers
 {
@@ -21,12 +22,31 @@ namespace BIMS.Controllers
             if (adminUser == null)
             {
                 TempData["ErrorMessage"] = "Admin user not found!";
-                return RedirectToAction("Login", "Account"); // Redirect if not logged in
+                return RedirectToAction("Login", "Users"); // Redirect if not logged in
+
             }
-            return View();
+            int adminUserId = adminUser.Id;
+
+            // Fetch notifications for the admin user
+            var notifications = await _context.Notifications
+                .Where(n => n.UserId == adminUserId && !n.IsDeleted)
+                .OrderByDescending(n => n.NotificationDate)
+                .ToListAsync();
+
+            return View(notifications);
+            
         }
 
-
+        public async Task<IActionResult> MarkAsRead(int notificationId)
+        {
+            var notification = await _context.Notifications.FindAsync(notificationId);
+            if (notification != null)
+            {
+                notification.IsRead = true;
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Index");
+        }
         public async Task<IActionResult> DeliveryPersonnel()
         {
             // Get users who are assigned to the "DeliveryPerson" role

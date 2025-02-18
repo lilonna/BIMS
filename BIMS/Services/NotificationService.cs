@@ -32,11 +32,45 @@ namespace BIMS.Services
 
             // Get admin's email from appsettings.json
             var adminEmail = _configuration["AdminCredentials:Email"];
-            if (string.IsNullOrEmpty(adminEmail))
+            var adminPassword = _configuration["AdminCredentials:Password"];
+            if (string.IsNullOrEmpty(adminEmail) || string.IsNullOrEmpty(adminPassword))
             {
                 Console.WriteLine("Admin email is missing in appsettings.json!");
                 return;
             }
+            // Check if the admin user exists in the database
+            var adminUser = await _userManager.FindByEmailAsync(adminEmail);
+            if (adminUser == null)
+            {
+                Console.WriteLine("Admin not found. Creating a new admin.");
+
+                // Create new admin user without hashing password (just for initial creation)
+                adminUser = new User
+                {
+                    UserName = adminEmail,
+                    Email = adminEmail,
+                    FirstName = "Admin",
+                    MiddleName="ayy",// You can set other values as needed
+                    LastName = "Admin",
+                    PhoneNumber = "0000000000", // Default phone number
+                    IsActive = true,
+                    GenderId=1,
+                    IsDeleted = false,
+                    CreatedDate = DateOnly.FromDateTime(DateTime.Now),
+                    Password = adminPassword // No hash here for initial creation
+                };
+
+                // Create the new admin user
+                // Directly save the user to the database (bypassing Identity's password hashing)
+                _context.Users.Add(adminUser);
+                await _context.SaveChangesAsync();
+
+                await _userManager.AddToRoleAsync(adminUser, "Admin");
+
+                Console.WriteLine("Admin user created successfully without password hashing!");
+            }
+
+        
 
             // Find the admin user by email and select only their integer ID
             var adminUserId = await _context.Users

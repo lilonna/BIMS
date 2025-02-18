@@ -7,13 +7,22 @@ namespace BIMS.Controllers
     public class AdminController : Controller
     {
         private readonly UserManager<User> _userManager;
+        private readonly BIMSContext _context;
 
-        public AdminController(UserManager<User> userManager)
+        public AdminController(UserManager<User> userManager, BIMSContext context)
         {
             _userManager = userManager;
+            _context = context;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            // Get the logged-in admin user's ID
+            var adminUser = await _userManager.GetUserAsync(User);
+            if (adminUser == null)
+            {
+                TempData["ErrorMessage"] = "Admin user not found!";
+                return RedirectToAction("Login", "Account"); // Redirect if not logged in
+            }
             return View();
         }
 

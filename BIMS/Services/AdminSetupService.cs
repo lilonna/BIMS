@@ -33,10 +33,11 @@ namespace BIMS.Services
                 {
                     // Admin created successfully
                     Console.WriteLine(" Admin created successfully");
+                    await _userManager.AddToRoleAsync(adminUser, "Admin");
                 }
                 else
                 {
-                    Console.WriteLine("Failed to create admin.");// Handle errors
+                    Console.WriteLine("Failed to create admin: " + string.Join(", ", result.Errors.Select(e => e.Description)));// Handle errors
                 }
             }
         }

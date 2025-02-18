@@ -4,7 +4,8 @@ namespace BIMS.Services
 {
     public interface INotificationService
     {
-        Task NotifyAdmin(Order order);
-        Task NotifyShopOwner(Order order);
+        Task NotifyAdmin(int orderId);
+        Task NotifyShopOwners(int orderId);
+        Task<List<Notification>> GetNotificationsForShopOwnerAsync(int shopOwnerUserId);
     }
 }

@@ -1,53 +1,24 @@
 ﻿@model BIMS.Models.Order
 
-@{
-    ViewData["Title"] = "Order Confirmation";
-}
+<h2>Order Confirmation</h2>
+<p>Order ID: @Model.Id</p>
+<p>Order Date: @Model.OrderDate</p>
+<p>Total Amount: @Model.TotalAmount</p>
+<p>Status: @Model.Status</p>
+<p>Payment Status: @Model.PaymentStatus</p>
 
-<h2>@ViewData["Title"]</h2>
-
-<p>Thank you for your order! Your order has been successfully processed.</p>
-
-<h3>Order Details:</h3>
-<table>
-    <tr>
-        <th>Order ID</th>
-        <td>@Model.Id</td>
-    </tr>
-    <tr>
-        <th>Order Date</th>
-        <td>@Model.OrderDate</td>
-    </tr>
-    <tr>
-        <th>Total Amount</th>
-        <td>@Model.TotalAmount</td>
-    </tr>
-</table>
-
-<h3>Items in your order:</h3>
-<table>
-    <tr>
-        <th>Item Name</th>
-        <th>Quantity</th>
-        <th>Price</th>
-        <th>Total Price</th>
-    </tr>
-    @if (Model.OrderItems != null && Model.OrderItems.Any())
+<!-- You can loop through the order items and display them -->
+@if (Model.OrderItems != null && Model.OrderItems.Any())
 {
-    @foreach (var item in Model.OrderItems)
-    {
-        <tr>
-            <td>@item.Item.Name</td>
-            <td>@item.Quantity</td>
-            <td>@item.Price</td>
-            <td>@item.TotalPrice</td>
-        </tr>
-    }
-    }
-    else
-    {
-        <tr><td colspan="4">No items in this order.</td></tr>
-    }
-</table>
-
-<p>Your order will be shipped soon. Thank you for shopping with us!</p>
+    <h3>Order Items:</h3>
+    <ul>
+        @foreach (var item in Model.OrderItems)
+        {
+            <li>@item.ItemId - Quantity: @item.Quantity - Price: @item.Price</li>
+        }
+    </ul>
+}
+else
+{
+    <p>No items in this order.</p>
+}

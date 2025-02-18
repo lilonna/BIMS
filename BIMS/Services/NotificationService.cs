@@ -15,59 +15,113 @@ namespace BIMS.Services
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
-
         }
 
-        public async Task NotifyAdmin(Order order)
+        public async Task NotifyAdmin(int orderId)
         {
-            // Get admin's UserId from appsettings.json
-            var adminEmail = _configuration["AdminCredentials:Email"];
-            var adminUser = await _userManager.FindByEmailAsync(adminEmail);
-            if (adminUser == null)
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Item) // Ensure Item details are loaded
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order == null)
             {
-                throw new Exception("Admin user not found.");
+                Console.WriteLine($"Order with ID {orderId} not found.");
+                return;
             }
 
+            // Get admin's email from appsettings.json
+            var adminEmail = _configuration["AdminCredentials:Email"];
+            if (string.IsNullOrEmpty(adminEmail))
+            {
+                Console.WriteLine("Admin email is missing in appsettings.json!");
+                return;
+            }
+
+            // Find the admin user by email and select only their integer ID
+            var adminUserId = await _context.Users
+                .Where(u => u.Email == adminEmail)
+                .Select(u => u.Id)  // Select only the integer ID
+                .FirstOrDefaultAsync();
+
+            if (adminUserId == 0) // Since int defaults to 0 if no result is found
+            {
+                Console.WriteLine($"Admin user with email {adminEmail} not found in UserManager!");
+                return;
+            }
+
+            Console.WriteLine($"Admin found: {adminUserId}, Email: {adminEmail}");
 
             var adminNotification = new Notification
             {
-                UserId = adminUser.Id, // Admin's User ID
+                UserId = adminUserId, // Use the filtered admin's User ID
                 Message = $"New order placed! Order ID: {order.Id}",
-                IsRead = false, // Notification is unread by default
-                IsDeleted = false, // Active notification
+                IsRead = false,
+                IsDeleted = false,
                 NotificationDate = DateTime.UtcNow,
-                NotificationTypeId = 1, // Adjust based on your NotificationType table
-                NotificationStatusId = 1 // Adjust based on your NotificationStatus table
+                NotificationTypeId = 1, // Adjust based on NotificationType table
+                NotificationStatusId = 1 // Adjust based on NotificationStatus table
             };
 
             await _context.Notifications.AddAsync(adminNotification);
-            await _context.SaveChangesAsync();
+            var saved = await _context.SaveChangesAsync();
+
+            Console.WriteLine($"SaveChangesAsync result: {saved}");
         }
 
-        public async Task NotifyShopOwner(Order order)
+
+        public async Task NotifyShopOwners(int orderId)
         {
-            var item = order.OrderItems.FirstOrDefault();
-            if (item != null)
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Item) // Ensure Item details are loaded
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order == null || order.OrderItems == null || !order.OrderItems.Any())
             {
-                var shop = await _context.Shops.FirstOrDefaultAsync(s => s.Id == item.Item.ShopId);
+                Console.WriteLine($"Order with ID {orderId} not found or has no items.");
+                return;
+            }
+
+            // Group items by shop
+            var itemsByShop = order.OrderItems
+                .Where(oi => oi.Item != null)
+                .GroupBy(oi => oi.Item.ShopId)
+                .ToList();
+
+            foreach (var shopGroup in itemsByShop)
+            {
+                int shopId = shopGroup.Key;
+                var shop = await _context.Shops.FirstOrDefaultAsync(s => s.Id == shopId);
 
                 if (shop != null)
                 {
+                    var itemDetails = string.Join(", ", shopGroup.Select(oi => $"{oi.Item.Name} (Qty: {oi.Quantity})"));
+
                     var shopOwnerNotification = new Notification
                     {
                         UserId = shop.UserId, // Shop Owner's User ID
-                        Message = $"New order received for your item. Order ID: {order.Id}",
-                        IsRead = false, // Notification is unread by default
-                        IsDeleted = false, // Active notification
+                        Message = $"New order received! Order ID: {order.Id}. Items: {itemDetails}.",
+                        IsRead = false,
+                        IsDeleted = false,
                         NotificationDate = DateTime.UtcNow,
-                        NotificationTypeId = 2, // Adjust based on your NotificationType table
-                        NotificationStatusId = 1 // Adjust based on your NotificationStatus table
+                        NotificationTypeId = 2, // Adjust based on NotificationType table
+                        NotificationStatusId = 1 // Adjust based on NotificationStatus table
                     };
 
                     await _context.Notifications.AddAsync(shopOwnerNotification);
-                    await _context.SaveChangesAsync();
                 }
             }
+
+            await _context.SaveChangesAsync(); // Save all notifications at once
+        }
+
+        public async Task<List<Notification>> GetNotificationsForShopOwnerAsync(int shopOwnerUserId)
+        {
+            return await _context.Notifications
+                .Where(n => n.UserId == shopOwnerUserId && !n.IsRead && !n.IsDeleted)
+                .OrderByDescending(n => n.NotificationDate)
+                .ToListAsync();
         }
     }
 }

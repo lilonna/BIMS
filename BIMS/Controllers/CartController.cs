@@ -121,42 +121,7 @@ namespace BIMS.Controllers
             await _cartService.RemoveFromCartAsync(cartId);
             return RedirectToAction("Index", "Cart");
         }
-        //    }   public async Task<IActionResult> Checkout()
-        //        {
-        //            int userId = HttpContext.Session.GetInt32("UserId") ?? 0;
-        //            if (userId == 0) return RedirectToAction("Login", "Users");
-        //            var cartItems = await _cartService.GetUserCartAsync(userId);
-
-        //            if (cartItems == null || cartItems.Count == 0)
-        //            {
-        //                return RedirectToAction("Index");
-        //            }
-        //            var order = await _orderService.CreateOrderAsync(userId, cartItems.Select(ci => new OrderItem
-        //            {
-        //                ItemId = ci.ItemId,
-        //                Quantity = ci.Quantity,
-        //                Price = ci.TotalPrice
-        //            }).ToList());
-
-        //            if (order == null)
-        //            {
-        //                return RedirectToAction("Index"); 
-        //            }
-        //            foreach (var item in cartItems)
-        //            {
-        //                var product = await _context.Items.FirstOrDefaultAsync(i => i.Id == item.ItemId);
-        //                if (product != null)
-        //                {
-        //                    product.Stock -= item.Quantity; 
-        //                    _context.Items.Update(product);
-        //                }
-        //            }
-        //await _context.SaveChangesAsync(); 
-        //            await _cartService.ClearCartAsync(userId);
-        //            return RedirectToAction("OrderConfirmation");
-        //        }
-
-        // Process Checkout (Saves Order & Notifies Admin + Shop Owner)
+     
 
 
 
@@ -189,8 +154,8 @@ namespace BIMS.Controllers
             var order = await _orderService.CreateOrderAsync(userId.Value, orderItems, address, contactNumber);
 
             // Notify admin & shop owners
-            await _notificationService.NotifyAdmin(order);
-            await _notificationService.NotifyShopOwner(order);
+            await _notificationService.NotifyAdmin(order.Id);
+            await _notificationService.NotifyShopOwners(order.Id);
 
             // Clear the cart
             await _cartService.ClearCartAsync(userId.Value);
@@ -200,33 +165,27 @@ namespace BIMS.Controllers
         }
 
         // Order Confirmation Page
-        public IActionResult OrderConfirmation()
+        public async Task<IActionResult> OrderConfirmation()
+
         {
-            return View();
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Users");
+            }
+            // Retrieve the last order details for the user, or handle accordingly
+            var lastOrder = await _orderService.GetOrderDetailsAsync(userId.Value);
+
+            if (lastOrder == null)
+            {
+                // Handle case where there is no order (maybe redirect or show a message)
+                TempData["Error"] = "No order found.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View(lastOrder);
         }
 
-
-        //public IActionResult OrderConfirmation()
-        //{
-        //    var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
-        //    int? lastOrderId = HttpContext.Session.GetInt32("LastOrderId");
-
-        //    if (lastOrderId == null)
-        //    {
-        //        return RedirectToAction("Index", "Cart");
-        //    }
-        //    var order = _context.Orders
-        //                        .Include(o => o.OrderItems)
-        //                        .ThenInclude(oi => oi.Item)  
-        //                        .FirstOrDefault(o => o.UserId == userId && o.Status == "Completed");
-
-        //    if (order == null)
-        //    {
-        //        return RedirectToAction("Index", "Cart");
-        //    }
-
-        //    return View(order); 
-        //}
         public async Task<IActionResult> ClearCart()
     {
         int userId = HttpContext.Session.GetInt32("UserId") ?? 0;

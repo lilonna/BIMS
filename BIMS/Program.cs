@@ -69,25 +69,43 @@ async Task EnsureRoles(IServiceProvider serviceProvider)
 {
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
-    string[] roles = { "Admin", "User", "DeliveryPerson" , "ShopOwner" };
+    // Define roles that should be checked or created
+    string[] roles = { "Admin", "User", "DeliveryPerson", "ShopOwner" };
 
     foreach (var role in roles)
     {
+        // Check if the role exists, create it if it doesn't
         if (!await roleManager.RoleExistsAsync(role))
         {
-            await roleManager.CreateAsync(new IdentityRole<int>(role));
+            var roleResult = await roleManager.CreateAsync(new IdentityRole<int>(role));
+            if (!roleResult.Succeeded)
+            {
+                Console.WriteLine($"Failed to create role: {role}");
+            }
         }
     }
+
+
+   
+    
 }
 
 // Call the method after building the app
 using (var scope = app.Services.CreateScope())
 {
     var serviceProvider = scope.ServiceProvider;
+    await EnsureRoles(serviceProvider); // Ensure roles and admin user exist
+}
+
+
+
+// Call the method after building the app
+using (var scope = app.Services.CreateScope())
+{
+    var serviceProvider = scope.ServiceProvider;
     await EnsureRoles(serviceProvider);
-    // Ensure the admin user exists
-    var adminSetupService = serviceProvider.GetRequiredService<AdminSetupService>();
-    await adminSetupService.CreateAdminIfNotExistsAsync();
+      // Ensure the admin user exists
+  
 
 }
 app.Run();

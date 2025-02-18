@@ -7,6 +7,35 @@
 <h1>@ViewBag.ShopName - Dashboard</h1>
 
 
+<!-- Display Notifications -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white">
+                Notifications
+            </div>
+            <div class="card-body">
+                @if (ViewBag.Notifications != null && ViewBag.Notifications.Count > 0)
+                {
+                    <ul class="list-group">
+                        @foreach (var notification in ViewBag.Notifications as List<BIMS.Models.Notification>)
+                        {
+                            <li class="list-group-item">
+                                <strong>@notification.Message</strong> <br />
+                                <small>@notification.NotificationDate.ToString("f")</small>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>No new notifications.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-4">
         <div class="card text-white bg-primary mb-3">

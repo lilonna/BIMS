@@ -6,16 +6,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BIMS.Models;
+using BIMS.Services;
 
 namespace BIMS.Controllers
 {
     public class ShopsController : Controller
     {
         private readonly BIMSContext _context;
+        private readonly INotificationService _notificationService;
 
-        public ShopsController(BIMSContext context)
+        public ShopsController(BIMSContext context, INotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
       
     // GET: Shops
@@ -286,6 +289,7 @@ namespace BIMS.Controllers
                 return RedirectToAction("Login", "Users"); 
             }
             int userId = loggedInUserId.Value;
+          
 
             // Fetch the shop details and ensure it belongs to the logged-in user
             var shop = await _context.Shops
@@ -298,14 +302,15 @@ namespace BIMS.Controllers
                 TempData["ErrorMessage"] = "Unauthorized access or shop not found.";
                 return RedirectToAction("Index"); 
             }
+            var notifications = await _notificationService.GetNotificationsForShopOwnerAsync(shop.UserId);
 
-           
             var itemCount = shop.Items.Count; // Count items
             ViewBag.ItemCount = itemCount;
 
             // Add any additional data for display in the dashboard
             ViewBag.ShopName = shop.Name;
             ViewBag.BusinessArea = shop.BusinessArea.Name;
+            ViewBag.Notifications = notifications;
 
             return View(shop);
         }

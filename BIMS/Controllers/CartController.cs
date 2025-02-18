@@ -79,7 +79,7 @@ namespace BIMS.Controllers
             if (userId == null)
             {
                 TempData["Error"] = "You must be logged in to proceed to checkout.";
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Users");
             }
 
             var cartItems = await _cartService.GetUserCartAsync(userId.Value);
@@ -157,14 +157,19 @@ namespace BIMS.Controllers
         //        }
 
         // Process Checkout (Saves Order & Notifies Admin + Shop Owner)
+
+
+
+
         [HttpPost]
+
         public async Task<IActionResult> CheckoutConfirm(string address, string contactNumber)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
             {
                 TempData["Error"] = "You must be logged in to checkout.";
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Users");
             }
 
             var cartItems = await _cartService.GetUserCartAsync(userId.Value);

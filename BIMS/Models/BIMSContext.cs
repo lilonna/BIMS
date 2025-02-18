@@ -364,7 +364,7 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsRead).HasDefaultValue(true);
 
             entity.HasOne(d => d.NotificationStatus).WithMany(p => p.Notifications)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -376,7 +376,7 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
 
             entity.HasOne(d => d.User).WithMany(p => p.Notifications)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Notifications_Users");
+                .HasConstraintName("FK_Notifications_AspNetUsers");
         });
 
         modelBuilder.Entity<NotificationStatus>(entity =>

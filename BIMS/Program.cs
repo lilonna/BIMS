@@ -27,9 +27,13 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();  // Register Repository
 builder.Services.AddScoped<IOrderService, OrderService>();        // Register Service
+builder.Services.AddScoped<AdminSetupService>();  // Register AdminSetupService
+
 
 
 builder.Services.AddSession(options =>
@@ -81,5 +85,9 @@ using (var scope = app.Services.CreateScope())
 {
     var serviceProvider = scope.ServiceProvider;
     await EnsureRoles(serviceProvider);
+    // Ensure the admin user exists
+    var adminSetupService = serviceProvider.GetRequiredService<AdminSetupService>();
+    await adminSetupService.CreateAdminIfNotExistsAsync();
+
 }
 app.Run();

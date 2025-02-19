@@ -95,9 +95,18 @@ namespace BIMS.Controllers
         }
         public async Task<IActionResult> ShopOwners()
         {
-            // Get all users who own at least one shop
+            // Get all shop owners along with their shop name and business area
             var shopOwners = await _context.Users
-                .Where(u => _context.Shops.Any(s => s.UserId == u.Id)) // Check if user owns a shop
+                .Where(u => _context.Shops.Any(s => s.UserId == u.Id))
+                .Select(u => new
+                {
+                    User = u,
+                    Shop = _context.Shops.Where(s => s.UserId == u.Id).Select(s => new
+                    {
+                        s.Name,
+                        s.BusinessArea
+                    }).FirstOrDefault() // Get the first shop if multiple exist
+                })
                 .ToListAsync();
 
             if (!shopOwners.Any())
@@ -107,6 +116,7 @@ namespace BIMS.Controllers
 
             return View(shopOwners);
         }
+
 
 
 

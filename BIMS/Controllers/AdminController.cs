@@ -93,6 +93,21 @@ namespace BIMS.Controllers
 
             return View(deliveryPersonnel);
         }
+        public async Task<IActionResult> ShopOwners()
+        {
+            // Get all users who own at least one shop
+            var shopOwners = await _context.Users
+                .Where(u => _context.Shops.Any(s => s.UserId == u.Id)) // Check if user owns a shop
+                .ToListAsync();
+
+            if (!shopOwners.Any())
+            {
+                TempData["ErrorMessage"] = "No shop owners found!";
+            }
+
+            return View(shopOwners);
+        }
+
 
 
     }

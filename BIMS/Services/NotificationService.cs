@@ -86,11 +86,12 @@ namespace BIMS.Services
             }
 
             Console.WriteLine($"Admin found: {adminUserId}, Email: {adminEmail}");
+            var orderDetails = string.Join(", ", order.OrderItems.Select(oi => $"{oi.Item.Name} (x{oi.Quantity})"));
 
             var adminNotification = new Notification
             {
                 UserId = adminUserId, // Use the filtered admin's User ID
-                Message = $"New order placed! Order ID: {order.Id}",
+                Message = $"New order placed! Order ID: {order.Id}. Items: {orderDetails}",
                 IsRead = false,
                 IsDeleted = false,
                 NotificationDate = DateTime.UtcNow,

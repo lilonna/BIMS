@@ -69,23 +69,23 @@ namespace BIMS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string password)
         {
-            string adminEmail = _config["AdminCredentials:Email"];
-            string adminPassword = _config["AdminCredentials:Password"];
-            if (email == adminEmail && password == adminPassword)
-            {
+            //string adminEmail = _config["AdminCredentials:Email"];
+            //string adminPassword = _config["AdminCredentials:Password"];
+            //if (email == adminEmail && password == adminPassword)
+            //{
                
                
                    
-                    // Store admin details in session
-                    HttpContext.Session.SetString("UserId", "0");
-                    HttpContext.Session.SetString("UserRole", "Admin");
-                    HttpContext.Session.SetString("UserName", "Administrator");
+            //        // Store admin details in session
+            //        HttpContext.Session.SetString("UserId", "0");
+            //        HttpContext.Session.SetString("UserRole", "Admin");
+            //        HttpContext.Session.SetString("UserName", "Administrator");
 
 
 
-                return RedirectToAction("Index", "Admin");
+            //    return RedirectToAction("Index", "Admin");
                 
-            }
+            //}
 
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
@@ -100,12 +100,21 @@ namespace BIMS.Controllers
                 TempData["ErrorMessage"] = "Invalid email or password.";
                 return View();
             }
-
+           
             HttpContext.Session.SetInt32("UserId", user.Id); // Store as int
             HttpContext.Session.SetString("UserName", user.FirstName); // Store the name as a string
-
+                                                                       // Get the user's roles
+            var userRole = await _userManager.GetRolesAsync(user);
+            // Debugging roles (optional)
+            TempData["DebugRoles"] = string.Join(", ", userRole);
 
             TempData["SuccessMessage"] = $"Welcome, {user.FirstName}!";
+            // Redirect based on role
+            if (userRole.Contains("Admin"))
+            {
+                return RedirectToAction("Index", "Admin"); // Redirect admin to the admin dashboard
+            }
+
             return RedirectToAction("Index", "Home");
 
         }

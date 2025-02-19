@@ -15,27 +15,62 @@ namespace BIMS.Controllers
             _userManager = userManager;
             _context = context;
         }
+        //public async Task<IActionResult> Index()
+        //{
+        //    // Get the logged-in admin user's ID
+        //    var adminUser = await _userManager.GetUserAsync(User);
+        //    if (adminUser == null)
+        //    {
+        //        TempData["ErrorMessage"] = "Admin user not found!";
+        //        return RedirectToAction("Login", "Users"); // Redirect if not logged in
+
+        //    }
+        //    int adminUserId = adminUser.Id;
+
+        //    // Fetch notifications for the admin user
+        //    var notifications = await _context.Notifications
+        //        .Where(n => n.UserId == adminUserId && !n.IsDeleted)
+        //        .OrderByDescending(n => n.NotificationDate)
+        //        .ToListAsync();
+
+        //    return View(notifications);
+
+        //}
         public async Task<IActionResult> Index()
         {
-            // Get the logged-in admin user's ID
-            var adminUser = await _userManager.GetUserAsync(User);
-            if (adminUser == null)
+            // Retrieve user ID from session
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
             {
-                TempData["ErrorMessage"] = "Admin user not found!";
-                return RedirectToAction("Login", "Users"); // Redirect if not logged in
-
+                TempData["ErrorMessage"] = "Session expired, please log in again!";
+                return RedirectToAction("Login", "Users");
             }
-            int adminUserId = adminUser.Id;
+
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "User not found!";
+                return RedirectToAction("Login", "Users");
+            }
+
+            // Check if user is an admin
+            var roles = await _userManager.GetRolesAsync(user);
+            if (!roles.Contains("Admin"))
+            {
+                TempData["ErrorMessage"] = "Access denied!";
+                return RedirectToAction("Login", "Users");
+            }
 
             // Fetch notifications for the admin user
             var notifications = await _context.Notifications
-                .Where(n => n.UserId == adminUserId && !n.IsDeleted)
+                .Where(n => n.UserId == user.Id && !n.IsDeleted)
                 .OrderByDescending(n => n.NotificationDate)
                 .ToListAsync();
 
             return View(notifications);
-            
         }
+
+
 
         public async Task<IActionResult> MarkAsRead(int notificationId)
         {

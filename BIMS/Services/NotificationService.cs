@@ -57,7 +57,8 @@ namespace BIMS.Services
                     GenderId=1,
                     IsDeleted = false,
                     CreatedDate = DateOnly.FromDateTime(DateTime.Now),
-                    Password = adminPassword // No hash here for initial creation
+                    Password = adminPassword, // No hash here for initial creation
+                     SecurityStamp = Guid.NewGuid().ToString()
                 };
 
                 // Create the new admin user

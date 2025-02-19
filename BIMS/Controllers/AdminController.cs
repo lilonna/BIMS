@@ -93,29 +93,42 @@ namespace BIMS.Controllers
 
             return View(deliveryPersonnel);
         }
+        //public async Task<IActionResult> ShopOwners()
+        //{
+        //    // Get all shop owners along with their shop name and business area
+        //    var shopOwners = await _context.Users
+        //        .Where(u => _context.Shops.Any(s => s.UserId == u.Id))
+        //        .Select(u => new
+        //        {
+        //            User = u,
+        //            Shop = _context.Shops.Where(s => s.UserId == u.Id).Select(s => new
+        //            {
+        //                s.Name,
+        //                s.BusinessArea
+        //            }).FirstOrDefault() // Get the first shop if multiple exist
+        //        })
+        //        .ToListAsync();
+
+        //    if (!shopOwners.Any())
+        //    {
+        //        TempData["ErrorMessage"] = "No shop owners found!";
+        //    }
+
+        //    return View(shopOwners);
+        //}
         public async Task<IActionResult> ShopOwners()
-        {
-            // Get all shop owners along with their shop name and business area
-            var shopOwners = await _context.Users
-                .Where(u => _context.Shops.Any(s => s.UserId == u.Id))
-                .Select(u => new
-                {
-                    User = u,
-                    Shop = _context.Shops.Where(s => s.UserId == u.Id).Select(s => new
-                    {
-                        s.Name,
-                        s.BusinessArea
-                    }).FirstOrDefault() // Get the first shop if multiple exist
-                })
-                .ToListAsync();
+{
+    var shopOwners = await _context.Users
+        .Where(u => _context.Shops.Any(s => s.UserId == u.Id))
+        .Select(u => new ValueTuple<User, Shop>(
+            u,
+            _context.Shops.Where(s => s.UserId == u.Id).FirstOrDefault()
+        ))
+        .ToListAsync();
 
-            if (!shopOwners.Any())
-            {
-                TempData["ErrorMessage"] = "No shop owners found!";
-            }
+    return View(shopOwners);
+}
 
-            return View(shopOwners);
-        }
 
 
 

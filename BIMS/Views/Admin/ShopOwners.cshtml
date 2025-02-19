@@ -1,9 +1,4 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
-@model List<BIMS.Models.User>
+﻿@model List<(BIMS.Models.User, BIMS.Models.Shop)>
 
 @{
     ViewData["Title"] = "Shop Owners";
@@ -20,17 +15,21 @@
                 <th>Full Name</th>
                 <th>Email</th>
                 <th>Phone Number</th>
+                <th>Shop Name</th>
+                <th>Business Area</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var user in Model)
+            @foreach (var (user, shop) in Model)
             {
                 <tr>
                     <td>@user.Id</td>
                     <td>@user.FirstName @user.LastName</td>
                     <td>@user.Email</td>
                     <td>@user.PhoneNumber</td>
+                    <td>@(shop?.Name ?? "N/A")</td>
+                    <td>@(shop.BusinessArea)</td>
                     <td>
                         <a href="@Url.Action("Details", "Users", new { id = user.Id })" class="btn btn-info btn-sm">View</a>
                     </td>

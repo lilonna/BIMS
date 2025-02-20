@@ -49,21 +49,19 @@ namespace BIMS.Controllers
         [HttpGet]
         public IActionResult Create(int? userId)
         {
-            // Check if the user is logged in by verifying the session or authentication
-            var loggedInUserId = HttpContext.Session.GetString("UserId");
-            if (string.IsNullOrEmpty(loggedInUserId))
+            // Check if the user is logged in
+            var loggedInUserId = HttpContext.Session.GetInt32("UserId");
+
+            if (!loggedInUserId.HasValue) // Check if session contains user ID
             {
                 TempData["ErrorMessage"] = "You are not logged in. Please log in to create a shop.";
-                return RedirectToAction("Login", "Users"); // Redirect to login
+                return RedirectToAction("Login", "Users"); // Redirect to login page
             }
-            // Convert loggedInUserId to integer
-            if (!int.TryParse(loggedInUserId, out int loggedUserId))
-            {
-                TempData["ErrorMessage"] = "Invalid session user ID.";
-                return RedirectToAction("Login", "Users");
-            }
+
+            int loggedUserId = loggedInUserId.Value; // Extract value safely
+
             // Ensure that the provided `userId` matches the logged-in user's ID
-            if (userId != null && userId != loggedUserId)
+            if (userId.HasValue && userId != loggedUserId)
             {
                 TempData["ErrorMessage"] = "You are not authorized to create a shop for another user.";
                 return RedirectToAction("Create", "Buildings");
@@ -71,9 +69,10 @@ namespace BIMS.Controllers
 
             ViewData["DocumentId"] = new SelectList(_context.Documentes, "Id", "Id");
             ViewData["OwnershipTypeId"] = new SelectList(_context.OwnershipTypes, "Id", "Id");
+
             return View();
         }
-       
+
         // POST: Owners/Create
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FullName,OwnershipTypeId,Tin,DocumentId,Verified,RegisteredDate,IsActive,IsDeleted")] Owner owner)

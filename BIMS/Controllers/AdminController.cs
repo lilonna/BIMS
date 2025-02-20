@@ -15,27 +15,6 @@ namespace BIMS.Controllers
             _userManager = userManager;
             _context = context;
         }
-        //public async Task<IActionResult> Index()
-        //{
-        //    // Get the logged-in admin user's ID
-        //    var adminUser = await _userManager.GetUserAsync(User);
-        //    if (adminUser == null)
-        //    {
-        //        TempData["ErrorMessage"] = "Admin user not found!";
-        //        return RedirectToAction("Login", "Users"); // Redirect if not logged in
-
-        //    }
-        //    int adminUserId = adminUser.Id;
-
-        //    // Fetch notifications for the admin user
-        //    var notifications = await _context.Notifications
-        //        .Where(n => n.UserId == adminUserId && !n.IsDeleted)
-        //        .OrderByDescending(n => n.NotificationDate)
-        //        .ToListAsync();
-
-        //    return View(notifications);
-
-        //}
         public async Task<IActionResult> Index()
         {
             // Retrieve user ID from session
@@ -93,29 +72,6 @@ namespace BIMS.Controllers
 
             return View(deliveryPersonnel);
         }
-        //public async Task<IActionResult> ShopOwners()
-        //{
-        //    // Get all shop owners along with their shop name and business area
-        //    var shopOwners = await _context.Users
-        //        .Where(u => _context.Shops.Any(s => s.UserId == u.Id))
-        //        .Select(u => new
-        //        {
-        //            User = u,
-        //            Shop = _context.Shops.Where(s => s.UserId == u.Id).Select(s => new
-        //            {
-        //                s.Name,
-        //                s.BusinessArea
-        //            }).FirstOrDefault() // Get the first shop if multiple exist
-        //        })
-        //        .ToListAsync();
-
-        //    if (!shopOwners.Any())
-        //    {
-        //        TempData["ErrorMessage"] = "No shop owners found!";
-        //    }
-
-        //    return View(shopOwners);
-        //}
         public async Task<IActionResult> ShopOwners()
 {
     var shopOwners = await _context.Users
@@ -128,9 +84,6 @@ namespace BIMS.Controllers
 
     return View(shopOwners);
 }
-
-
-
 
 
     }

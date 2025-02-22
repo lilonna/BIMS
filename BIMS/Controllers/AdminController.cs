@@ -1,4 +1,5 @@
 ﻿using BIMS.Models;
+using BIMS.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +10,13 @@ namespace BIMS.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly BIMSContext _context;
+        private readonly INotificationService _notificationService;
 
-        public AdminController(UserManager<User> userManager, BIMSContext context)
+        public AdminController(UserManager<User> userManager, BIMSContext context, INotificationService notificationService)
         {
             _userManager = userManager;
             _context = context;
+            _notificationService = notificationService;
         }
         public async Task<IActionResult> Index()
         {
@@ -45,12 +48,44 @@ namespace BIMS.Controllers
                 .Where(n => n.UserId == user.Id && !n.IsDeleted)
                 .OrderByDescending(n => n.NotificationDate)
                 .ToListAsync();
+            var pendingOwners = await _context.Owners
+      .Where(o => !o.Verified) // Fetch only pending approvals
+      .ToListAsync();
 
-            return View(notifications);
+            return View(new Tuple<List<Notification>, List<Owner>>(notifications, pendingOwners));
         }
 
+        public async Task<IActionResult> ApproveOwners()
+        {
+            var pendingOwners = await _context.Owners
+                .Where(o => !o.Verified)
+                .Include(o => o.User)
+                .ToListAsync();
+            return View(pendingOwners);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Approve(int id)
+        {
+            var owner = await _context.Owners.FindAsync(id);
+            if (owner == null) return NotFound();
 
+            owner.Verified = true;
+            owner.IsActive = true;
 
+            var user = await _context.Users.FindAsync(owner.UserId);
+            if (user != null)
+            {
+                user.OwnerId = owner.Id; // ✅ Upgrade User to Owner
+            }
+
+            await _context.SaveChangesAsync();
+
+            await _notificationService.NotifyUserOfApproval(owner.UserId);
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("ApproveOwners");
+        }
         public async Task<IActionResult> MarkAsRead(int notificationId)
         {
             var notification = await _context.Notifications.FindAsync(notificationId);

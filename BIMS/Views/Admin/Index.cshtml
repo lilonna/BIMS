@@ -1,8 +1,7 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-
-@model List<BIMS.Models.Notification>
+@model Tuple<List<Notification>, List<Owner>>
 
 @{
 }
@@ -48,11 +47,71 @@
     </div>
    
 </div>
+<!-- Owner Approvals Section -->
+<h3>Pending Owner Approvals</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Full Name</th>
+            <th>TIN</th>
+            <th>License</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var owner in Model.Item2) // Access Owners List
+        {
+            <tr>
+                <td>@owner.FullName</td>
+                <td>@owner.Tin</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(owner.License))
+                    {
+                        <a href="javascript:void(0);" data-toggle="modal" data-target="#licenseModal-@owner.Id">
+                            <img src="~/images/@owner.License" alt="License" width="100" height="100" style="cursor: pointer; border-radius: 5px;" />
+                        </a>
+
+                        <!-- Modal for License Image -->
+                        <div class="modal fade" id="licenseModal-@owner.Id" tabindex="-1" aria-labelledby="licenseModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">License Image</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <img src="~/images/@owner.License" class="img-fluid" alt="License Image" style="max-width: 100%;" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <span>No License Available</span>
+                    }
+                </td>
+                <td>
+                    <form asp-action="Approve" method="post">
+                        <input type="hidden" name="id" value="@owner.Id" />
+                        <button type="submit" class="btn btn-success">Approve</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+
 <h3>Notifications</h3>
-@if (Model.Any())
+@if (Model.Item1.Any())
 {
     <ul class="list-group">
-        @foreach (var notification in Model)
+        @foreach (var notification in Model.Item1)
         {
             <li class="list-group-item @(notification.IsRead ? "text-muted" : "font-weight-bold")">
                 @notification.Message - @notification.NotificationDate.ToLocalTime().ToString("MMM dd, yyyy HH:mm")
@@ -77,3 +136,6 @@ else
         </div>
     </div>
 </div>
+<!-- Add Bootstrap JS & jQuery for the modal to work -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

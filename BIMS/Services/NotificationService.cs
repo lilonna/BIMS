@@ -16,6 +16,49 @@ namespace BIMS.Services
             _userManager = userManager;
             _configuration = configuration;
         }
+        public async Task NotifyAdminOfOwnerRequest(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return;
+
+            var adminEmail = _configuration["AdminCredentials:Email"];
+            var adminUser = await _userManager.FindByEmailAsync(adminEmail);
+            if (adminUser == null) return;
+
+            var notification = new Notification
+            {
+                UserId = adminUser.Id,
+                Message = $"User {user.FirstName} {user.LastName} has requested to become an owner. Please review.",
+                IsRead = false,
+                IsDeleted = false,
+                NotificationDate = DateTime.UtcNow,
+                NotificationTypeId = 1,
+                NotificationStatusId = 1
+            };
+
+            await _context.Notifications.AddAsync(notification);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task NotifyUserOfApproval(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return;
+
+            var notification = new Notification
+            {
+                UserId = userId,
+                Message = "Congratulations! Your request has been approved. You can now create a shop.",
+                IsRead = false,
+                IsDeleted = false,
+                NotificationDate = DateTime.UtcNow,
+                NotificationTypeId = 2,
+                NotificationStatusId = 1
+            };
+
+            await _context.Notifications.AddAsync(notification);
+            await _context.SaveChangesAsync();
+        }
 
         public async Task NotifyAdmin(int orderId)
         {

@@ -6,16 +6,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BIMS.Models;
+using BIMS.Services;
 
 namespace BIMS.Controllers
 {
     public class OwnersController : Controller
     {
         private readonly BIMSContext _context;
+        private readonly INotificationService _notificationService;
 
-        public OwnersController(BIMSContext context)
+        public OwnersController(BIMSContext context, INotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         // GET: Owners
@@ -47,7 +50,7 @@ namespace BIMS.Controllers
 
         // GET: Owners/Create
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             // Check if the user is logged in
             var loggedInUserId = HttpContext.Session.GetInt32("UserId");
@@ -57,20 +60,18 @@ namespace BIMS.Controllers
                 TempData["ErrorMessage"] = "You are not logged in. Please log in to create a shop.";
                 return RedirectToAction("Login", "Users"); // Redirect to login page
             }
-
-            //int loggedUserId = loggedInUserId.Value; // Extract value safely
-
-            //// Ensure that the provided `userId` matches the logged-in user's ID
-            //if (userId.HasValue && userId != loggedUserId)
-            //{
-            //    TempData["ErrorMessage"] = "You are not authorized to create a shop for another user.";
-            //    return RedirectToAction("Create", "Buildings");
-            //}
+            // Fetch the logged-in user
+            var user = await _context.Users.FindAsync(loggedInUserId.Value);
+            if (user == null) return NotFound();
+            var model = new Owner
+            {
+                FullName = $"{user.FirstName} {user.MiddleName} {user.LastName}"
+            };
 
             ViewData["DocumentId"] = new SelectList(_context.Documentes, "Id", "Id");
             ViewData["OwnershipTypeId"] = new SelectList(_context.OwnershipTypes, "Id", "Id");
 
-            return View();
+            return View(model);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -121,9 +122,12 @@ namespace BIMS.Controllers
                 await _context.SaveChangesAsync();
 
                 HttpContext.Session.SetInt32("OwnerId", model.Id);
+                await _context.SaveChangesAsync();
 
-                //// Notify Admin via Notification Service
-                //await _notificationService.SendNotification(1, "New owner registration request: " + model.FullName);
+                // After saving the owner request, notify the admin
+                await _notificationService.NotifyAdminOfOwnerRequest(user.Id);
+                await _context.SaveChangesAsync();
+
 
                 TempData["SuccessMessage"] = "Your request has been submitted. Please wait for admin approval.";
                 return RedirectToAction("Create", "Buildings");

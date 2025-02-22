@@ -78,10 +78,16 @@ namespace BIMS.Controllers
                 user.OwnerId = owner.Id; // ✅ Upgrade User to Owner
             }
 
-            await _context.SaveChangesAsync();
+            // Save Approval Notification
+            var notification = new Notification
+            {
+                UserId = owner.UserId,
+                Message = "Congratulations! Your request has been approved.",
+                IsRead = false,
+                NotificationDate = DateTime.UtcNow
+            };
 
-            await _notificationService.NotifyUserOfApproval(owner.UserId);
-
+            _context.Notifications.Add(notification);
             await _context.SaveChangesAsync();
 
             return RedirectToAction("ApproveOwners");

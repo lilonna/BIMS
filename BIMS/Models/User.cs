@@ -11,6 +11,7 @@ public partial class User : IdentityUser<int>
 {
     [Key]
     public override int Id { get; set; }
+    public int? OwnerId { get; set; }
 
     public int GenderId { get; set; }
 
@@ -42,6 +43,7 @@ public partial class User : IdentityUser<int>
     [Required]
     [StringLength(30)]
     public string Password { get; set; }
+    public bool IsOwner => OwnerId.HasValue;
 
     [InverseProperty("User")]
     public virtual ICollection<BuildingEmployee> BuildingEmployees { get; set; } = new List<BuildingEmployee>();

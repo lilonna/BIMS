@@ -21,7 +21,7 @@ namespace BIMS.Controllers
         // GET: Owners
         public async Task<IActionResult> Index()
         {
-            var bIMSContext = _context.Owners.Include(o => o.Document).Include(o => o.OwnershipType);
+            var bIMSContext = _context.Owners/*.Include(o => o.Document)*/.Include(o => o.OwnershipType);
             return View(await bIMSContext.ToListAsync());
         }
 
@@ -34,7 +34,7 @@ namespace BIMS.Controllers
             }
 
             var owner = await _context.Owners
-                .Include(o => o.Document)
+                //.Include(o => o.Document)
                 .Include(o => o.OwnershipType)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (owner == null)
@@ -47,7 +47,7 @@ namespace BIMS.Controllers
 
         // GET: Owners/Create
         [HttpGet]
-        public IActionResult Create(int? userId)
+        public IActionResult Create()
         {
             // Check if the user is logged in
             var loggedInUserId = HttpContext.Session.GetInt32("UserId");
@@ -58,39 +58,85 @@ namespace BIMS.Controllers
                 return RedirectToAction("Login", "Users"); // Redirect to login page
             }
 
-            int loggedUserId = loggedInUserId.Value; // Extract value safely
+            //int loggedUserId = loggedInUserId.Value; // Extract value safely
 
-            // Ensure that the provided `userId` matches the logged-in user's ID
-            if (userId.HasValue && userId != loggedUserId)
-            {
-                TempData["ErrorMessage"] = "You are not authorized to create a shop for another user.";
-                return RedirectToAction("Create", "Buildings");
-            }
+            //// Ensure that the provided `userId` matches the logged-in user's ID
+            //if (userId.HasValue && userId != loggedUserId)
+            //{
+            //    TempData["ErrorMessage"] = "You are not authorized to create a shop for another user.";
+            //    return RedirectToAction("Create", "Buildings");
+            //}
 
             ViewData["DocumentId"] = new SelectList(_context.Documentes, "Id", "Id");
             ViewData["OwnershipTypeId"] = new SelectList(_context.OwnershipTypes, "Id", "Id");
 
             return View();
         }
-
-        // POST: Owners/Create
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FullName,OwnershipTypeId,Tin,DocumentId,Verified,RegisteredDate,IsActive,IsDeleted")] Owner owner)
+        public async Task<IActionResult> Create([Bind("Id,FullName,OwnershipTypeId,Tin,License,Verified,RegisteredDate,IsActive,IsDeleted")] Owner model, IFormFile LicenseImage)
         {
+            var loggedInUserId = HttpContext.Session.GetInt32("UserId");
+            if (!loggedInUserId.HasValue)
+            {
+                TempData["ErrorMessage"] = "Please log in first.";
+                return RedirectToAction("Login", "Users");
+            }
+            var user = await _context.Users.FindAsync(loggedInUserId.Value);
+            if (user == null) return NotFound();
             if (ModelState.IsValid)
             {
-                _context.Add(owner);
-                await _context.SaveChangesAsync();
-                HttpContext.Session.SetInt32("OwnerId", owner.Id);
+                if (LicenseImage != null)
+                {
+                    // Validate file type (allow only images)
+                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                    string fileExtension = Path.GetExtension(LicenseImage.FileName).ToLower();
 
+                    if (!allowedExtensions.Contains(fileExtension))
+                    {
+                        ModelState.AddModelError("", "Only image files (JPG, JPEG, PNG, WEBP) are allowed.");
+                        ViewData["OwnershipTypeId"] = new SelectList(_context.OwnershipTypes, "Id", "Id", model.OwnershipTypeId);
+                        return View(model);
+                    }
+
+                    // Generate a unique filename and store it in wwwroot/uploads/license_images
+                    string fileName = Guid.NewGuid().ToString() + fileExtension;
+                    string uploadPath = Path.Combine("wwwroot/images", fileName);
+
+                    using (var stream = new FileStream(uploadPath, FileMode.Create))
+                    {
+                        await LicenseImage.CopyToAsync(stream);
+                    }
+
+                    model.License = fileName; // Store only the image file name in DB
+                }
+                model.UserId = user.Id;
+                model.FullName = $"{user.FirstName} {user.MiddleName} {user.LastName}";
+                model.Verified = false; // Waiting for admin approval
+                model.RegisteredDate = DateOnly.FromDateTime(DateTime.Now);
+                model.IsActive = false;
+                model.IsDeleted = false;
+
+                _context.Owners.Add(model);
+                await _context.SaveChangesAsync();
+
+                HttpContext.Session.SetInt32("OwnerId", model.Id);
+
+                //// Notify Admin via Notification Service
+                //await _notificationService.SendNotification(1, "New owner registration request: " + model.FullName);
+
+                TempData["SuccessMessage"] = "Your request has been submitted. Please wait for admin approval.";
                 return RedirectToAction("Create", "Buildings");
             }
-           
-            ViewData["DocumentId"] = new SelectList(_context.Documentes, "Id", "Id", owner.DocumentId);
-            ViewData["OwnershipTypeId"] = new SelectList(_context.OwnershipTypes, "Id", "Id", owner.OwnershipTypeId);
-            return View(owner);
+
+            ViewData["OwnershipTypeId"] = new SelectList(_context.OwnershipTypes, "Id", "Id", model.OwnershipTypeId);
+            return View(model);
         }
 
+        public IActionResult PendingApproval()
+        {
+            return View(); // Show "Waiting for admin approval" message
+        }
         // GET: Owners/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -104,7 +150,7 @@ namespace BIMS.Controllers
             {
                 return NotFound();
             }
-            ViewData["DocumentId"] = new SelectList(_context.Documentes, "Id", "Id", owner.DocumentId);
+            //ViewData["DocumentId"] = new SelectList(_context.Documentes, "Id", "Id", owner.DocumentId);
             ViewData["OwnershipTypeId"] = new SelectList(_context.OwnershipTypes, "Id", "Id", owner.OwnershipTypeId);
             return View(owner);
         }
@@ -140,7 +186,7 @@ namespace BIMS.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DocumentId"] = new SelectList(_context.Documentes, "Id", "Id", owner.DocumentId);
+            //ViewData["DocumentId"] = new SelectList(_context.Documentes, "Id", "Id", owner.DocumentId);
             ViewData["OwnershipTypeId"] = new SelectList(_context.OwnershipTypes, "Id", "Id", owner.OwnershipTypeId);
             return View(owner);
         }
@@ -154,7 +200,7 @@ namespace BIMS.Controllers
             }
 
             var owner = await _context.Owners
-                .Include(o => o.Document)
+                //.Include(o => o.Document)
                 .Include(o => o.OwnershipType)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (owner == null)

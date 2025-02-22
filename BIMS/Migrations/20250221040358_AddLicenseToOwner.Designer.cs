@@ -4,6 +4,7 @@ using BIMS.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BIMS.Migrations
 {
     [DbContext(typeof(BIMSContext))]
-    partial class BIMSContextModelSnapshot : ModelSnapshot
+    [Migration("20250221040358_AddLicenseToOwner")]
+    partial class AddLicenseToOwner
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -998,7 +1001,7 @@ namespace BIMS.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("DocumentId")
+                    b.Property<int>("DocumentId")
                         .HasColumnType("int");
 
                     b.Property<string>("FullName")
@@ -1028,9 +1031,6 @@ namespace BIMS.Migrations
                         .HasColumnType("int")
                         .HasColumnName("TIN");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("Verified")
                         .HasColumnType("bit");
 
@@ -1039,8 +1039,6 @@ namespace BIMS.Migrations
                     b.HasIndex("DocumentId");
 
                     b.HasIndex("OwnershipTypeId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Owners");
                 });
@@ -1737,9 +1735,6 @@ namespace BIMS.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<int?>("OwnerId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -2297,6 +2292,7 @@ namespace BIMS.Migrations
                     b.HasOne("BIMS.Models.Documente", "Document")
                         .WithMany("Owners")
                         .HasForeignKey("DocumentId")
+                        .IsRequired()
                         .HasConstraintName("FK_Owners_Documentes");
 
                     b.HasOne("BIMS.Models.OwnershipType", "OwnershipType")
@@ -2305,17 +2301,9 @@ namespace BIMS.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Owners_OwnershipTypes");
 
-                    b.HasOne("BIMS.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Document");
 
                     b.Navigation("OwnershipType");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BIMS.Models.RentalAgreementTermination", b =>

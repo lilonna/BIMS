@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BIMS.Migrations
 {
     [DbContext(typeof(BIMSContext))]
-    [Migration("20250220072308_RemoveOwnershipTypeId")]
-    partial class RemoveOwnershipTypeId
+    [Migration("20250221045448_MakeDocumentIdNullableToOwners")]
+    partial class MakeDocumentIdNullableToOwners
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1001,7 +1001,7 @@ namespace BIMS.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("DocumentId")
+                    b.Property<int?>("DocumentId")
                         .HasColumnType("int");
 
                     b.Property<string>("FullName")
@@ -1016,6 +1016,10 @@ namespace BIMS.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<string>("License")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("OwnershipTypeId")
                         .HasColumnType("int");
@@ -2288,7 +2292,6 @@ namespace BIMS.Migrations
                     b.HasOne("BIMS.Models.Documente", "Document")
                         .WithMany("Owners")
                         .HasForeignKey("DocumentId")
-                        .IsRequired()
                         .HasConstraintName("FK_Owners_Documentes");
 
                     b.HasOne("BIMS.Models.OwnershipType", "OwnershipType")

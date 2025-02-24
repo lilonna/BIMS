@@ -57,6 +57,20 @@ namespace BIMS.Controllers
 
             return View(user);
         }
+        [HttpGet("GetUserNotifications")]
+        public async Task<IActionResult> GetUserNotifications()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId"); // Get logged-in user
+            if (userId == null)
+                
+                return Unauthorized();
+
+            var notifications = await _context.Notifications
+                .Where(n => n.UserId == userId && !n.IsRead)
+                .ToListAsync();
+
+            return Json(new { count = notifications.Count, notifications });
+        }
 
 
         // GET: Users/Login
@@ -69,23 +83,6 @@ namespace BIMS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string password)
         {
-            //string adminEmail = _config["AdminCredentials:Email"];
-            //string adminPassword = _config["AdminCredentials:Password"];
-            //if (email == adminEmail && password == adminPassword)
-            //{
-               
-               
-                   
-            //        // Store admin details in session
-            //        HttpContext.Session.SetString("UserId", "0");
-            //        HttpContext.Session.SetString("UserRole", "Admin");
-            //        HttpContext.Session.SetString("UserName", "Administrator");
-
-
-
-            //    return RedirectToAction("Index", "Admin");
-                
-            //}
 
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {

@@ -58,6 +58,19 @@
                           
                        
                     </div>
+                <a class="nav-link" href="#" $("#notificationBell").click(function (e) {
+                   e.preventDefault(); // Prevent default link behavior
+                   fetchNotifications();
+                   $("#notificationDropdown").toggle();
+                   });>
+                    🔔 <span id="notificationCount" class="badge badge-danger">0</span>
+                </a>
+
+                <div id="notificationDropdown" class="dropdown-menu dropdown-menu-right" style="display: none;">
+                    <h6 class="dropdown-header">Notifications</h6>
+                    <div id="notificationList"></div>
+                </div>
+
 
                 @if (Context.Session.GetInt32("UserId") != null)
                     {
@@ -194,7 +207,45 @@
                         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
                 </div>
+                <script>
+                    $(document).ready(function () {
+                        function fetchNotifications() {
+                            $.ajax({
+                                url: "/GetUserNotifications",
+                                method: "GET",
+                                success: function (response) {
+                                    $("#notificationCount").text(response.count);
 
+                                    let notificationList = $("#notificationList");
+                                    notificationList.empty();
+
+                                    if (response.notifications.length === 0) {
+                                        notificationList.append('<p class="dropdown-item text-muted">No new notifications</p>');
+                                    } else {
+                                        response.notifications.forEach(notification => {
+                                            let item = `<a href="#" class="dropdown-item">
+                                                            <small class="text-muted">${new Date(notification.NotificationDate).toLocaleString()}</small><br>
+                                                            ${notification.Message}
+                                                        </a>`;
+                                            notificationList.append(item);
+                                        });
+                                    }
+                                }
+                            });
+                        }
+
+                        // Load notifications when the bell is clicked
+                        $("#notificationBell").click(function (event) {
+                            event.preventDefault();
+                            fetchNotifications();
+                            $("#notificationDropdown").toggle();
+                        });
+
+                        // Fetch notifications periodically (e.g., every 10 seconds)
+                        setInterval(fetchNotifications, 10000);
+                    });
+
+                </script>
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
                         var toastElement = document.getElementById('toastMessage');

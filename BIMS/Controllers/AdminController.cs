@@ -84,7 +84,9 @@ namespace BIMS.Controllers
                 UserId = owner.UserId,
                 Message = "Congratulations! Your request has been approved.",
                 IsRead = false,
-                NotificationDate = DateTime.UtcNow
+                NotificationDate = DateTime.UtcNow,
+                NotificationTypeId = 2, // Adjust based on NotificationType table
+                NotificationStatusId = 1
             };
 
             _context.Notifications.Add(notification);

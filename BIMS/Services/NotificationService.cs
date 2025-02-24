@@ -33,8 +33,9 @@ namespace BIMS.Services
                 IsDeleted = false,
                 NotificationDate = DateTime.UtcNow,
                 NotificationTypeId = 1,
-                NotificationStatusId = 1
+                NotificationStatusId = 2
             };
+            Console.WriteLine($"NotificationStatusId before save: {notification.NotificationStatusId}");
 
             await _context.Notifications.AddAsync(notification);
             await _context.SaveChangesAsync();
@@ -53,7 +54,7 @@ namespace BIMS.Services
                 IsDeleted = false,
                 NotificationDate = DateTime.UtcNow,
                 NotificationTypeId = 2,
-                NotificationStatusId = 1
+                NotificationStatusId = 3
             };
 
             await _context.Notifications.AddAsync(notification);

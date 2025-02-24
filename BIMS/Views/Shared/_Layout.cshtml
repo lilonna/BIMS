@@ -58,20 +58,18 @@
                           
                        
                     </div>
-                <a class="nav-link" href="#" $("#notificationBell").click(function (e) {
-                   e.preventDefault(); // Prevent default link behavior
-                   fetchNotifications();
-                   $("#notificationDropdown").toggle();
-                   });>
+             @*    <a class="nav-link" href="#" id="notificationBell">
                     🔔 <span id="notificationCount" class="badge badge-danger">0</span>
+                </a> *@
+                <a href="#" id="notificationToggle" class="nav-link">
+                    <span>Notifications</span>
                 </a>
 
+                <!-- Notification Dropdown -->
                 <div id="notificationDropdown" class="dropdown-menu dropdown-menu-right" style="display: none;">
                     <h6 class="dropdown-header">Notifications</h6>
                     <div id="notificationList"></div>
                 </div>
-
-
                 @if (Context.Session.GetInt32("UserId") != null)
                     {
 
@@ -207,45 +205,7 @@
                         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
                 </div>
-                <script>
-                    $(document).ready(function () {
-                        function fetchNotifications() {
-                            $.ajax({
-                                url: "/GetUserNotifications",
-                                method: "GET",
-                                success: function (response) {
-                                    $("#notificationCount").text(response.count);
-
-                                    let notificationList = $("#notificationList");
-                                    notificationList.empty();
-
-                                    if (response.notifications.length === 0) {
-                                        notificationList.append('<p class="dropdown-item text-muted">No new notifications</p>');
-                                    } else {
-                                        response.notifications.forEach(notification => {
-                                            let item = `<a href="#" class="dropdown-item">
-                                                            <small class="text-muted">${new Date(notification.NotificationDate).toLocaleString()}</small><br>
-                                                            ${notification.Message}
-                                                        </a>`;
-                                            notificationList.append(item);
-                                        });
-                                    }
-                                }
-                            });
-                        }
-
-                        // Load notifications when the bell is clicked
-                        $("#notificationBell").click(function (event) {
-                            event.preventDefault();
-                            fetchNotifications();
-                            $("#notificationDropdown").toggle();
-                        });
-
-                        // Fetch notifications periodically (e.g., every 10 seconds)
-                        setInterval(fetchNotifications, 10000);
-                    });
-
-                </script>
+            
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
                         var toastElement = document.getElementById('toastMessage');
@@ -254,7 +214,66 @@
                     });
                 </script>
             }
-          
+            <script>
+                document.getElementById("notificationToggle").addEventListener("click", function (event) {
+                    event.preventDefault(); // Prevent page refresh
+
+                    let dropdown = document.getElementById("notificationDropdown");
+
+                    // Show dropdown
+                    dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+
+                    // Fetch notifications from backend
+                    fetch('/Notification/GetUserNotifications') // Update with your actual controller name
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                let notificationList = document.getElementById("notificationList");
+                                notificationList.innerHTML = ""; // Clear previous notifications
+
+                                if (data.notifications.length === 0) {
+                                    notificationList.innerHTML = "<p class='text-center'>No new notifications</p>";
+                                } else {
+                                    data.notifications.forEach(notification => {
+                                        let listItem = document.createElement("div");
+                                        listItem.className = "dropdown-item";
+                                        listItem.innerHTML = `<strong>${notification.Message}</strong> <br> <small>${notification.Date}</small>`;
+                                        notificationList.appendChild(listItem);
+                                    });
+                                }
+                            } else {
+                                alert("Failed to load notifications.");
+                            }
+                        })
+                        .catch(error => console.error("Error fetching notifications:", error));
+                });
+                ;
+
+            </script>
+            <script>
+                async function fetchNotifications() {
+                    const response = await fetch('/NotificationController/GetUserNotifications');
+                    const notifications = await response.json();
+
+                    let notificationList = document.getElementById('notificationList');
+                    notificationList.innerHTML = '';
+
+                    notifications.forEach(n => {
+                        let li = document.createElement('li');
+                        li.textContent = n.Message;
+                        li.onclick = () => markAsRead(n.id);
+                        notificationList.appendChild(li);
+                    });
+                }
+
+                async function markAsRead(notificationId) {
+                    await fetch('/Notification/MarkNotificationAsRead?id=' + notificationId, { method: 'POST' });
+                    fetchNotifications(); // Refresh notifications
+                }
+
+                // Fetch notifications on page load
+                fetchNotifications();
+            </script>
             <div class="main-body">
 
             @RenderBody()

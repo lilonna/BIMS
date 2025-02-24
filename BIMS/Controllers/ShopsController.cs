@@ -302,7 +302,7 @@ namespace BIMS.Controllers
                 TempData["ErrorMessage"] = "Unauthorized access or shop not found.";
                 return RedirectToAction("Index"); 
             }
-            var notifications = await _notificationService.GetNotificationsForShopOwnerAsync(shop.UserId);
+            //var notifications = await _notificationService.GetNotificationsForShopOwnerAsync(shop.UserId);
 
             var itemCount = shop.Items.Count; // Count items
             ViewBag.ItemCount = itemCount;
@@ -310,7 +310,7 @@ namespace BIMS.Controllers
             // Add any additional data for display in the dashboard
             ViewBag.ShopName = shop.Name;
             ViewBag.BusinessArea = shop.BusinessArea.Name;
-            ViewBag.Notifications = notifications;
+            //ViewBag.Notifications = notifications;
 
             return View(shop);
         }

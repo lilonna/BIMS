@@ -1,6 +1,8 @@
 ﻿using BIMS.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace BIMS.Services
 {
@@ -9,12 +11,14 @@ namespace BIMS.Services
         private readonly BIMSContext _context;
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public NotificationService(BIMSContext context, UserManager<User> userManager, IConfiguration configuration)
+        public NotificationService(BIMSContext context, UserManager<User> userManager, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task NotifyAdminOfOwnerRequest(int userId)
         {
@@ -195,11 +199,28 @@ namespace BIMS.Services
 
             await _context.SaveChangesAsync(); // Save all notifications at once
         }
-
-        public async Task<List<Notification>> GetNotificationsForShopOwnerAsync(int shopOwnerUserId)
+        public async Task MarkAsRead(int notificationId)
         {
+            var notification = await _context.Notifications.FindAsync(notificationId);
+            if (notification != null)
+            {
+                notification.IsRead = true;
+                _context.Update(notification);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<List<Notification>> GetUserNotifications()
+        {
+            var userIdClaim = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                return new List<Notification>(); // No user is logged in
+            }
+
             return await _context.Notifications
-                .Where(n => n.UserId == shopOwnerUserId && !n.IsRead && !n.IsDeleted)
+                .Where(n => n.UserId == userId && !n.IsRead) // Fetch only unread notifications for the user
                 .OrderByDescending(n => n.NotificationDate)
                 .ToListAsync();
         }

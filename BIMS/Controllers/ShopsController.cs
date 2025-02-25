@@ -277,7 +277,6 @@ namespace BIMS.Controllers
             return Json(new { hasShop });
         }
 
-        //shopdashboard
         [HttpGet("Shops/ShopDashboard/{shopId}")]
         public async Task<IActionResult> ShopDashboard(int shopId)
         {
@@ -286,12 +285,10 @@ namespace BIMS.Controllers
             if (!loggedInUserId.HasValue)
             {
                 TempData["ErrorMessage"] = "You are not logged in. Please log in to access this page.";
-                return RedirectToAction("Login", "Users"); 
+                return RedirectToAction("Login", "Users");
             }
             int userId = loggedInUserId.Value;
-          
 
-            // Fetch the shop details and ensure it belongs to the logged-in user
             var shop = await _context.Shops
                 .Include(s => s.BusinessArea)
                 .Include(s => s.Items).ThenInclude(s => s.ItemCategory)
@@ -300,20 +297,24 @@ namespace BIMS.Controllers
             if (shop == null)
             {
                 TempData["ErrorMessage"] = "Unauthorized access or shop not found.";
-                return RedirectToAction("Index"); 
+                return RedirectToAction("Index");
             }
-            //var notifications = await _notificationService.GetNotificationsForShopOwnerAsync(shop.UserId);
 
-            var itemCount = shop.Items.Count; // Count items
-            ViewBag.ItemCount = itemCount;
+            // Fetch notifications
+            var notifications = await _context.Notifications
+                .Where(n => n.UserId == userId && !n.IsDeleted)
+                .OrderByDescending(n => n.NotificationDate)
+                .ToListAsync();
 
-            // Add any additional data for display in the dashboard
+            ViewBag.Notifications = notifications;  // ✅ Assigning notifications to ViewBag
+
+            ViewBag.ItemCount = shop.Items.Count;
             ViewBag.ShopName = shop.Name;
             ViewBag.BusinessArea = shop.BusinessArea.Name;
-            //ViewBag.Notifications = notifications;
 
             return View(shop);
         }
+
 
 
 

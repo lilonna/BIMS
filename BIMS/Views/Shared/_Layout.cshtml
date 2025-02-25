@@ -58,18 +58,10 @@
                           
                        
                     </div>
-             @*    <a class="nav-link" href="#" id="notificationBell">
+                <a class="nav-link" href=" @Url.Action("GetUserNotifications", "Notification")" >
                     🔔 <span id="notificationCount" class="badge badge-danger">0</span>
-                </a> *@
-                <a href="#" id="notificationToggle" class="nav-link">
-                    <span>Notifications</span>
-                </a>
-
-                <!-- Notification Dropdown -->
-                <div id="notificationDropdown" class="dropdown-menu dropdown-menu-right" style="display: none;">
-                    <h6 class="dropdown-header">Notifications</h6>
-                    <div id="notificationList"></div>
-                </div>
+                </a> 
+            
                 @if (Context.Session.GetInt32("UserId") != null)
                     {
 
@@ -194,6 +186,34 @@
                 </script>
             }
 
+          @*   @if (Context.Session.GetInt32("UserId") != null)
+            {
+                <script>
+                    async function fetchNotifications() {
+                        try {
+                            let response = await fetch('/Notification/GetUserNotifications');
+                            let notifications = await response.json();
+                            let list = document.getElementById("notificationList");
+                            list.innerHTML = "";
+
+                            if (notifications.length === 0) {
+                                list.innerHTML = "<p>No new notifications.</p>";
+                            } else {
+                                notifications.forEach(n => {
+                                    let li = document.createElement("li");
+                                    li.classList.add("list-group-item");
+                                    li.innerHTML = `<strong>${n.message}</strong> <br /><small>${new Date(n.notificationDate).toLocaleString()}</small>`;
+                                    list.appendChild(li);
+                                });
+                            }
+                        } catch (error) {
+                            console.error("Error fetching notifications:", error);
+                        }
+                    }
+                    setInterval(fetchNotifications, 10000);
+                    fetchNotifications();
+                </script>
+            } *@
 
             @if (TempData["SuccessMessage"] != null)
             {
@@ -214,66 +234,7 @@
                     });
                 </script>
             }
-            <script>
-                document.getElementById("notificationToggle").addEventListener("click", function (event) {
-                    event.preventDefault(); // Prevent page refresh
-
-                    let dropdown = document.getElementById("notificationDropdown");
-
-                    // Show dropdown
-                    dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
-
-                    // Fetch notifications from backend
-                    fetch('/Notification/GetUserNotifications') // Update with your actual controller name
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                let notificationList = document.getElementById("notificationList");
-                                notificationList.innerHTML = ""; // Clear previous notifications
-
-                                if (data.notifications.length === 0) {
-                                    notificationList.innerHTML = "<p class='text-center'>No new notifications</p>";
-                                } else {
-                                    data.notifications.forEach(notification => {
-                                        let listItem = document.createElement("div");
-                                        listItem.className = "dropdown-item";
-                                        listItem.innerHTML = `<strong>${notification.Message}</strong> <br> <small>${notification.Date}</small>`;
-                                        notificationList.appendChild(listItem);
-                                    });
-                                }
-                            } else {
-                                alert("Failed to load notifications.");
-                            }
-                        })
-                        .catch(error => console.error("Error fetching notifications:", error));
-                });
-                ;
-
-            </script>
-            <script>
-                async function fetchNotifications() {
-                    const response = await fetch('/NotificationController/GetUserNotifications');
-                    const notifications = await response.json();
-
-                    let notificationList = document.getElementById('notificationList');
-                    notificationList.innerHTML = '';
-
-                    notifications.forEach(n => {
-                        let li = document.createElement('li');
-                        li.textContent = n.Message;
-                        li.onclick = () => markAsRead(n.id);
-                        notificationList.appendChild(li);
-                    });
-                }
-
-                async function markAsRead(notificationId) {
-                    await fetch('/Notification/MarkNotificationAsRead?id=' + notificationId, { method: 'POST' });
-                    fetchNotifications(); // Refresh notifications
-                }
-
-                // Fetch notifications on page load
-                fetchNotifications();
-            </script>
+  
             <div class="main-body">
 
             @RenderBody()

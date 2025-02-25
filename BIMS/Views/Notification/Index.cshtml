@@ -1,0 +1,62 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model IEnumerable<BIMS.Models.Notification>
+
+@{
+    ViewData["Title"] = "Notifications";
+    Layout = "_Layout"; // Assuming you have a shared layout
+}
+
+<h2>Notifications</h2>
+
+<div id="notifications-list">
+    <!-- Notifications will be loaded here via AJAX -->
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            loadNotifications();
+
+            function loadNotifications() {
+                $.ajax({
+                    url: '@Url.Action("GetUserNotifications", "Notification")',
+                    type: 'GET',
+                    success: function (data) {
+                        $('#notifications-list').empty();
+                        if (data.length > 0) {
+                            data.forEach(function (notification) {
+                                var notificationHtml = `
+                                    <div class="notification-item" data-id="${notification.notificationId}">
+                                        <p>${notification.message}</p>
+                                        <small>${new Date(notification.notificationDate).toLocaleString()}</small>
+                                        <button class="btn btn-sm btn-primary mark-as-read" data-id="${notification.notificationId}">Mark as Read</button>
+                                        <hr />
+                                    </div>
+                                `;
+                                $('#notifications-list').append(notificationHtml);
+                            });
+                        } else {
+                            $('#notifications-list').html('<p>No new notifications.</p>');
+                        }
+                    }
+                });
+            }
+
+            $(document).on('click', '.mark-as-read', function () {
+                var notificationId = $(this).data('id');
+                $.ajax({
+                    url: '@Url.Action("MarkNotificationAsRead", "Notification")',
+                    type: 'POST',
+                    data: { id: notificationId },
+                    success: function () {
+                        loadNotifications(); // Reload notifications after marking as read
+                    }
+                });
+            });
+        });
+    </script>
+}

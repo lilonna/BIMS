@@ -7,7 +7,7 @@ namespace BIMS.Services
         Task MarkAsRead(int notificationId);
         Task NotifyAdmin(int orderId);
         Task NotifyShopOwners(int orderId);
-        Task<List<Notification>> GetUserNotifications ();
+        //Task<List<Notification>> GetUserNotifications ();
         Task NotifyAdminOfOwnerRequest(int userId);  // ✅ Add this method
         Task NotifyUserOfApproval(int userId);
     }

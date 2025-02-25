@@ -1,0 +1,24 @@
+﻿@model List<BIMS.Models.Notification>
+
+<!-- Notifications -->
+<h3 class="mt-4">Notifications</h3>
+
+@if (Model != null && Model.Any()) // Ensure Model is not null before calling .Any()
+{
+    <ul class="list-group">
+        @foreach (var notification in Model)
+        {
+            <li class="list-group-item @(notification.IsRead ? "text-muted" : "font-weight-bold")">
+                @notification.Message - @notification.NotificationDate.ToLocalTime().ToString("MMM dd, yyyy HH:mm")
+                @if (!notification.IsRead)
+                {
+                    <a asp-action="MarkAsRead" asp-route-notificationId="@notification.Id" class="btn btn-sm btn-success float-end">Mark as Read</a>
+                }
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No new notifications.</p>
+}

@@ -11,14 +11,13 @@ namespace BIMS.Services
         private readonly BIMSContext _context;
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+       
 
-        public NotificationService(BIMSContext context, UserManager<User> userManager, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public NotificationService(BIMSContext context, UserManager<User> userManager, IConfiguration configuration)
         {
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
         }
         public async Task NotifyAdminOfOwnerRequest(int userId)
         {
@@ -47,13 +46,22 @@ namespace BIMS.Services
 
         public async Task NotifyUserOfApproval(int userId)
         {
+            if (userId <= 0)
+            {
+                Console.WriteLine("Invalid user ID.");
+                return;
+            }
             var user = await _context.Users.FindAsync(userId);
-            if (user == null) return;
+            if (user == null)
+            {
+                Console.WriteLine("User not found.");
+                return;
+            }
 
             var notification = new Notification
             {
                 UserId = userId,
-                Message = "Congratulations! Your request has been approved. You can now create a shop.",
+                Message = "Congratulations! Your request has been approved. You can create a shop now .",
                 IsRead = false,
                 IsDeleted = false,
                 NotificationDate = DateTime.UtcNow,
@@ -139,7 +147,7 @@ namespace BIMS.Services
             var adminNotification = new Notification
             {
                 UserId = adminUserId, // Use the filtered admin's User ID
-                Message = $"New order placed! Order ID: {order.Id}. Items: {orderDetails}",
+                Message = $"New order placed for your items! Order ID: {order.Id}. Items: {orderDetails}",
                 IsRead = false,
                 IsDeleted = false,
                 NotificationDate = DateTime.UtcNow,
@@ -210,19 +218,22 @@ namespace BIMS.Services
             }
         }
 
-        public async Task<List<Notification>> GetUserNotifications()
-        {
-            var userIdClaim = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //public async Task<List<Notification>> GetUserNotifications()
+        //{
+        //    var userIdClaim = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
-            {
-                return new List<Notification>(); // No user is logged in
-            }
+        //    if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+        //    {
+        //        return new List<Notification>(); // No user is logged in
+        //    }
 
-            return await _context.Notifications
-                .Where(n => n.UserId == userId && !n.IsRead) // Fetch only unread notifications for the user
-                .OrderByDescending(n => n.NotificationDate)
-                .ToListAsync();
-        }
+        //    var notifications = await _context.Notifications
+        //.Where(n => n.UserId == userId && !n.IsRead)
+        //.OrderByDescending(n => n.NotificationDate)
+        //.ToListAsync();
+
+        //    Console.WriteLine($"Found {notifications.Count} notifications for user {userId}.");
+        //    return notifications;
+        //}
     }
 }

@@ -48,14 +48,23 @@ namespace BIMS.Controllers
 
             return View(notifications);  // ✅ Ensure this returns a LIST, not a single object!
         }
-
-
-
-        [HttpPost]
-        public async Task<IActionResult> MarkNotificationAsRead(int id)
+        public async Task<IActionResult> MarkAsRead(int notificationId)
         {
-            await _notificationService.MarkAsRead(id);
-            return Ok();
+            var notification = await _context.Notifications.FindAsync(notificationId);
+            if (notification != null)
+            {
+                notification.IsRead = true;
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Index");
         }
+
+
+        //[HttpPost]
+        //public async Task<IActionResult> MarkNotificationAsRead(int id)
+        //{
+        //    await _notificationService.MarkAsRead(id);
+        //    return Ok();
+        //}
     }
 }

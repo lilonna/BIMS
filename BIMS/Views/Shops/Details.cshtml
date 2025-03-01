@@ -120,7 +120,7 @@
 function addToCart(itemId, quantity) {
     $.ajax({
         type: 'POST',
-        url: '@Url.Action("AddToCart", "Cart")', // The controller action URL
+        url: '@Url.Action("AddToCart", "Cart")', 
          
 
         data: {
@@ -129,13 +129,13 @@ function addToCart(itemId, quantity) {
             }, xhrFields: { withCredentials: true },
         success: function (response) {
                 if (response.success) {
-                    alert(response.message); // Show success message
+                    alert(response.message); 
                 } else {
-                    alert("Error: " + response.message); // Show error message
+                    alert("Error: " + response.message); 
                 }
         },
         error: function (xhr) {
-            // Handle error (e.g., show an error message)
+          
                 alert("An unexpected error occurred: " + xhr.responseText);
         }
     });

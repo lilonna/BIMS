@@ -68,21 +68,21 @@ namespace BIMS.Controllers
             {
                 if (Image != null && Image.Length > 0)
                 {
-                    // Define the folder path for storing images
+                    
                     var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-                    Directory.CreateDirectory(uploadsFolder); // Ensure the folder exists
+                    Directory.CreateDirectory(uploadsFolder); 
 
-                    // Generate a unique file name
+                    
                     var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
 
-                    // Save the image file
+                   
                     var filePath = Path.Combine(uploadsFolder, fileName);
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await Image.CopyToAsync(stream);
                     }
 
-                    // Save the file path to the database
+                    
                     item.ImagePath = $"/images/{fileName}";
                 }
 
@@ -127,7 +127,7 @@ namespace BIMS.Controllers
             {
                 try
                 {
-                    // Fetch existing item details
+                    
                     var existingItem = await _context.Items.AsNoTracking().FirstOrDefaultAsync(i => i.Id == id);
                     if (existingItem == null)
                     {
@@ -163,7 +163,7 @@ namespace BIMS.Controllers
                     }
 
 
-                    // Update item details
+                  
                     _context.Update(item);
                     await _context.SaveChangesAsync();
                 }

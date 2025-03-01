@@ -1,5 +1,6 @@
-﻿@{
+﻿@* @{
     ViewData["Title"] = "Home Page";
+
 }
 
 <link rel="stylesheet" href="~/css/lilo.css" />
@@ -38,7 +39,370 @@
         </div>
     </a>
 </div>
+    <div class="container my-4">
+    <h2 class="text-center mb-4" style="font-family: Arial, sans-serif; font-weight: bold; color: #333;">Featured Shops</h2>
+        <div class="row">
+        @foreach (var item in ViewBag.Shops)
+            {
+                <div class="col-md-3 mb-4">
+                    <div class="card shadow-sm border-0"
+                         style="border-radius: 8px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; background-color: white;">
+                        <img src="@item.ImageUrl" class="card-img-top" alt="Property Image"
+                             style="height: 200px; object-fit: cover; border-bottom: 1px solid #f1f1f1;" />
+                        <div class="card-body">
+                            <h5 class="card-title text-primary"
+                                style="font-size: 1.25rem; font-weight: bold; color: #007bff;">
+                                @item.Name
+                            </h5>
+                            <p class="text-muted small mb-2" style="color: #6c757d; font-size: 0.85rem;">
+                                @item.Description
+                            </p>
+                            <a a asp-controller="Shops" asp-action="Details" asp-route-id="@item.Id"
+                               class="btn btn-sm w-100"
+                               style="background-color: #FF7E00; color: white; border: none; padding: 10px; text-align: center;
+                                  transition: background-color 0.3s ease; text-decoration: none;">
+                                View Details
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+<div class="d-flex justify-content-center mt-3">
+    <a href="@Url.Action("Index", "Shops")" class="btn " style="background-color: #FF7E00; color: white; border: none;  text-align: center;transition: background-color 0.3s ease; text-decoration: none;">See More</a>
+</div>
+<h1 class="text-center">Available Items</h1>
+
+
+<div class="container">
+    <div class="row">
+        @foreach (var item in ViewBag.Items)
+        {
+            <div class="col-md-4 mb-6">
+                <div class="card shadow-sm" style="max-width: 200px; margin: auto;">
+                    <img src="@item.ImagePath" class="card-img-top" alt="Product Image"
+                         style="height: 150px; object-fit: cover; border-bottom: 1px solid #f1f1f1;" />
+                    <div class="card-body" style="padding: 5px;">
+
+                        
+                        <a asp-action="Details" asp-route-id="@item.Id" asp-controller="Items">
+                            <h5 class="card-title" style="font-size: 1rem; margin-bottom: 2px;">@item.Name</h5>
+                        </a>
+
+
+                      
+                        <h6 class="card-title" style="font-size: 0.8rem; margin-bottom: 2px;">Price: @item.Price</h6>
+
+                       
+                        <p class="card-text text-muted" style="font-size: 0.8rem; margin-bottom: 2px;">
+                            Category: @item.ItemCategory.Name<br />
+                            @(item.IsAvailable ? "Available" : "Not Available at the moment")
+                        </p>
+
+
+                   
+                        <button onclick="addToCart(@item.Id, 1)" class="btn btn-sm btn-primary w-100">Buy</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="d-flex justify-content-center mt-3">
+        <a href="@Url.Action("Index", "Items")" class="btn btn-primary">See More</a>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    function addToCart(itemId, quantity) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("AddToCart", "Cart")', 
+
+
+            data: {
+                itemId: itemId,
+                quantity: quantity
+            }, xhrFields: { withCredentials: true },
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message); 
+                } else {
+                    alert("Error: " + response.message); 
+                }
+            },
+            error: function (xhr) {
+               
+                alert("An unexpected error occurred: " + xhr.responseText);
+            }
+        });
+    }
+</script> *@
 
 
 
 
+
+
+
+
+
+@* <div class="row">
+    <h1 class="home-heading">What Are You Looking For?</h1>
+    <a class="m-auto col-11 col-md-6 col-lg-3" asp-action="Index" asp-controller="Shops">
+        <div class="home-link">
+            <img class="home-image" src="/images/shopping.jpg" alt="Shops" />
+            <h1 class="home-card">Shops</h1>
+        </div>
+    </a>
+    <a class="m-auto col-11 col-md-6 col-lg-3">
+        <div class="home-link">
+            <img class="home-image" src="/images/rent.jpg" alt="Rent" />
+            <h1 class="home-card">Rent Shop Or Office</h1>
+        </div>
+    </a>
+    <a class="m-auto col-11 col-md-6 col-lg-3" asp-action="Create" asp-controller="Owners">
+        <div class="home-link">
+            <img class="home-image" src="/images/BMS.jpg" alt="BMS" />
+            <h1 class="home-card">To Use Our BMS System</h1>
+        </div>
+    </a>
+</div>
+<div class="row justify-content-center">
+    @foreach (var shop in ViewBag.Shops)
+    {
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+            <div class="card shadow-sm">
+                <img src="@shop.ImageUrl" class="card-img-top" alt="Shop Image">
+                <div class="card-body">
+                    <h5 class="card-title">@shop.Name</h5>
+                    <p class="text-muted">@shop.Description</p>
+                    <a asp-controller="Shops" asp-action="Details" asp-route-id="@shop.Id"
+                       class="btn btn-primary w-100">View Details</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<h2 class="text-center">🔥 Best Sellers</h2>
+<div class="row">
+    @foreach (var item in ViewBag.BestSellers)
+    {
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <img src="@item.ImagePath" class="card-img-top" alt="@item.Name" />
+                <div class="card-body">
+                    <h5 class="card-title">@item.Name</h5>
+                    <p class="text-muted">Sold: @item.SalesCount</p>
+                    <a asp-action="Details" asp-controller="Items" asp-route-id="@item.Id"
+                       class="btn btn-primary w-100">View</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<h2 class="text-center mt-5">🏷 On Sale</h2>
+<div class="row">
+    @foreach (var item in ViewBag.OnSale)
+    {
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <img src="@item.ImagePath" class="card-img-top" alt="@item.Name" />
+                <div class="card-body">
+                    <h5 class="card-title">@item.Name</h5>
+                    <p class="text-muted">
+                        <s>@item.Price</s> <strong>@item.DiscountPrice</strong>
+                    </p>
+                    <a asp-action="Details" asp-controller="Items" asp-route-id="@item.Id"
+                       class="btn btn-success w-100">Get Deal</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function addToCart(itemId, quantity) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("AddToCart", "Cart")',
+            data: { itemId: itemId, quantity: quantity },
+            success: function (response) {
+                alert(response.success ? response.message : "Error: " + response.message);
+            },
+            error: function (xhr) {
+                alert("An unexpected error occurred: " + xhr.responseText);
+            }
+        });
+    }
+</script>
+
+ *@
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+<link rel="stylesheet" href="~/css/lilo.css" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Hero Section -->
+<div class="container mt-4">
+    <div class="hero bg-dark text-white text-center p-5 rounded">
+        <h1>Fast & Reliable Delivery</h1>
+        <p>Order from your favorite shops and get it delivered instantly!</p>
+        <a href="/Shops/Index" class="btn btn-primary">Browse Shops</a>
+    </div>
+</div>
+
+
+<!-- Flash Sales -->
+<div class="container mt-5">
+    <h2>Flash Sales</h2>
+    <div class="row">
+        @foreach (var item in ViewBag.OnSale)
+        {
+            <div class="col-md-3 mb-4">
+                <div class="card">
+                    <img src="@item.ImagePath" class="fixed-img" style="height: 160px; width: 100%; object-fit: cover;" alt="@item.Name">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Name</h5>
+                        <p class="text-danger">Sale: $@item.DiscountPrice <s>$@item.Price</s></p>
+                        <a href="/Product/Details/@item.Id" class="btn btn-primary">Buy Now</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<!-- Best Selling Products -->
+<div class="container mt-5">
+    <h2>Best Selling Products</h2>
+    <div class="row">
+        @foreach (var product in ViewBag.BestSellers)
+        {
+            <div class="col-md-3 mb-4">
+                <div class="card">
+                    <img src="@product.ImagePath" class="fixed-img" style="height: 160px; width: 100%; object-fit: cover;" alt="@product.Name">
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="text-primary">$@product.Price</p>
+                        <a href="/Product/Details/@product.Id" class="btn btn-outline-dark">View</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+
+
+
+
+
+<!-- Shop Section -->
+<div class="container my-4">
+    <h2 class="text-center">Browse Shops</h2>
+    <div class="row">
+        @foreach (var shop in ViewBag.Shops)
+        {
+            <div class="col-md-3 mb-4">
+                <div class="card shadow-sm border-0 style=" border-radius: 8px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; background-color: white;"">
+                    <img src="@shop.ImageUrl" class=" fixed-img" style="height: 200px; object-fit: cover; border-bottom: 1px solid #f1f1f1;" alt="@shop.Name">
+                    <div class="card-body ">
+                        <h5 class="card-title text-primary"
+                            style="font-size: 1.25rem; font-weight: bold; color: #007bff;">
+                            @shop.Name
+                        </h5>
+                        <p class="text-muted small mb-2" style="color: #6c757d; font-size: 0.85rem;">
+                            @shop.Description
+                        </p>
+                        <a href="/Shops/Details/@shop.Id" class="btn btn-sm w-100"
+                           style="background-color: #FF7E00; color: white; border: none; padding: 10px; text-align: center;
+                                  transition: background-color 0.3s ease; text-decoration: none;">View Products</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<div class="d-flex justify-content-center mt-3">
+    <a href="@Url.Action("Index", "Shops")" class="btn " style="background-color: #FF7E00; color: white; border: none;  text-align: center;transition: background-color 0.3s ease; text-decoration: none;">See More</a>
+</div>
+
+
+<!-- Advertisement Section -->
+<div class="container mt-5">
+    <div class="row align-items-center bg-light p-4 rounded shadow-sm">
+        <div class="col-md-6">
+            <h2>Special Offers Just for You!</h2>
+            <p>Don't miss out on our latest deals. Shop now and save big.</p>
+            <a href="/Sales" class="btn btn-danger">Shop Now</a>
+        </div>
+        <div class="col-md-6 text-center">
+            <img src="/images/ads-banner.jpg" alt="Special Offers" class="img-fluid rounded">
+        </div>
+    </div>
+</div>
+
+<!-- Explore Our Products Section -->
+<div class="container mt-5">
+    <h2 class="text-center">Explore Our Products</h2>
+    <div class="row">
+        @foreach (var category in ViewBag.items)
+        {
+            <div class="col-md-3 mb-4">
+                <div class="card p-3 shadow-sm border-0">
+                    <img src="@category.ImagePath" class="fixed-img" style="height: 160px; width: 100%; object-fit: cover; border-radius: 8px;" alt="@category.Name">
+                    <div class="card-body text-start">
+                        <!-- Changed from text-center to text-start -->
+                        <a asp-action="Details" asp-route-id="@category.Id" asp-controller="Items" class="text-decoration-none text-dark">
+                            <h5 class="card-title fw-bold" style="font-size: 1rem; margin-bottom: 5px;">@category.Name</h5>
+                        </a>
+                        <h6 class="card-title text-primary" style="font-size: 0.9rem; margin-bottom: 5px;">Price: $@category.Price</h6>
+
+                        <p class="card-text text-muted mb-2" style="font-size: 0.85rem;">
+                            <strong>Category:</strong> @category.ItemCategory.Name
+                        </p>
+                        <p class="card-text" style="font-size: 0.85rem; color: @(category.IsAvailable ? "green" : "red");">
+                            @(category.IsAvailable ? "Available" : "Not Available at the moment")
+                        </p>
+                        <button onclick="addToCart(@category.Id, 1)" class="btn btn-sm btn-primary w-100">Buy</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<div class="d-flex justify-content-center mt-3">
+    <a href="@Url.Action("Index", "Items")" class="btn btn-primary">See More</a>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function addToCart(itemId, quantity) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("AddToCart", "Cart")',
+            data: { itemId: itemId, quantity: quantity },
+            success: function (response) {
+                alert(response.success ? response.message : "Error: " + response.message);
+            },
+            error: function (xhr) {
+                alert("An unexpected error occurred: " + xhr.responseText);
+            }
+        });
+    }
+</script>
+
+<!-- Footer -->
+<footer class="bg-dark text-white text-center p-4 mt-5">
+    <p>&copy; @DateTime.Now.Year Your Delivery App | All Rights Reserved</p>
+</footer>

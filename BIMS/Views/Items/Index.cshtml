@@ -22,7 +22,6 @@
                             Category: @item.ItemCategory.Name<br />
                              @(item.IsAvailable ? "Available" : "Not Available at the moment")
                         </p>
-                        @* <a href="@Url.Action("Details", new { id = item.Id })" class="btn btn-primary">View Details</a> *@
 
                         <a href="@Url.Action("Details", new { id = item.Id })"
                            class="btn btn-sm w-100"

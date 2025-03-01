@@ -41,7 +41,8 @@ namespace BIMS.Services
             Console.WriteLine($"NotificationStatusId before save: {notification.NotificationStatusId}");
 
             await _context.Notifications.AddAsync(notification);
-            await _context.SaveChangesAsync();
+            var saved = await _context.SaveChangesAsync();
+            Console.WriteLine($"SaveChangesAsync result: {saved}");
         }
 
         public async Task NotifyUserOfApproval(int userId)

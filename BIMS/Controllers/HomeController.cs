@@ -9,17 +9,39 @@ namespace BIMS.Controllers
     public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
-
+        private readonly BIMSContext _contextt;
         public HomeController(BIMSContext context, ILogger<HomeController> logger) : base(context)
         {
             _logger = logger;
+            _contextt = context;
         }
 
         public IActionResult Index()
         {
+            var shops = _contextt.Shops.OrderBy(s => s.Id).Take(8).ToList(); // Fetch first 5 shops
+        
+
+            ViewBag.Shops = shops;
+          
+            var items = _contextt.Items.Include(i => i.ItemCategory).OrderBy(i => i.Id).Take(8).ToList();
+            ViewBag.Items = items ?? new List<Item>(); // Ensure it's never null
+
+
+            // Best Sellers: Example - Select top 5 most purchased items
+            ViewBag.BestSellers = _context.Items.Include(i => i.ItemCategory)
+                .OrderByDescending(i => i.SalesCount) // Assuming you have SalesCount
+                .Take(5)
+                .ToList();
+
+            // On Sale Items: Example - Select items with a discount
+            ViewBag.OnSale = _context.Items.Include(i => i.ItemCategory)
+                .Where(i => i.DiscountPrice < i.Price) // Assuming you have a DiscountPrice field
+                .ToList();
+
             return View();
         }
-        
+
+
 
         public IActionResult conatctus()
         {

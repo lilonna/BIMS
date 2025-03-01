@@ -24,7 +24,8 @@ public partial class Item
 
     public bool IsDeleted { get; set; }
     public int Stock { get; set; }
-
+    public decimal DiscountPrice { get; set; } // New field for discounts
+    public int SalesCount { get; set; }
     public string ImagePath { get; set; }
 
     [Column(TypeName = "decimal(18, 2)")]

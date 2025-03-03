@@ -22,193 +22,225 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 
-
-<!-- Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-
-<!-- Custom Styles -->
-<style>
-    body {
-        display: flex;
-       /*  margin-top: 90px; */
-       /*  padding-top: 80px; /* Adjust based on navbar height */ */
-    }
-
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        background-color: #343a40;
-        color: white;
-       /*  margin-top:90px; */
-        position: fixed;
-        padding: 20px;
-        transition: all 0.3s;
-    }
-
-        .sidebar a {
-            color: white;
-            text-decoration: none;
-            padding: 10px;
-            display: block;
-            border-radius: 5px;
+    <!-- Custom Styles -->
+    <style>
+        body {
+            display: flex;
+            background-color: #f8f9fa;
         }
 
-            .sidebar a:hover {
-                background-color: #007bff;
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #343a40;
+            color: white;
+            position: fixed;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+            .sidebar a {
+                color: white;
+                text-decoration: none;
+                padding: 10px;
+                display: block;
+                border-radius: 5px;
+                transition: background-color 0.3s;
             }
 
-    .content {
-        /*  margin-top: 90px;
-          padding-top: 80px;  */
-        margin-left: 260px; 
-        padding: 20px;
-        width: 100%;
-    }
+                .sidebar a:hover {
+                    background-color: #007bff;
+                }
 
-    .card {
-        border-radius: 10px;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-        .card i {
-            font-size: 24px;
-            margin-right: 10px;
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+            width: 100%;
         }
-</style>
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+            .card i {
+                font-size: 24px;
+                margin-right: 10px;
+                color: #007bff;
+            }
+
+            .card .card-title {
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+
+            .card .card-text {
+                font-size: 14px;
+                color: #6c757d;
+            }
+
+        .table {
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+            .table th {
+                background-color: #007bff;
+                color: white;
+            }
+
+            .table td {
+                vertical-align: middle;
+            }
+
+        .list-group-item {
+            border: none;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
-<!-- Sidebar -->
-<div class="sidebar">
-    <h3>Admin Panel</h3>
-    <a href="@Url.Action("Index", "Admin")"><i class="fas fa-home"></i> Dashboard</a>
-    <a href="@Url.Action("Register", "Users")"><i class="fas fa-user-plus"></i> Register User</a>
-    <a href="@Url.Action("Index", "Users")"><i class="fas fa-users"></i> Manage Users</a>
-    <a href="@Url.Action("DeliveryPersonnel", "Admin")"><i class="fas fa-truck"></i> Delivery Personnel</a>
-    <a href="@Url.Action("ShopOwners", "Admin")"><i class="fas fa-store"></i> Shop Owners</a>
-    <a href="#"><i class="fas fa-bell"></i> Notifications</a>
-    <a href="@Url.Action("LogOut", "Users")"><i class="fas fa-sign-out-alt"></i> Logout</a>
-</div>
-
-<!-- Content -->
-<div class="content">
-    <h2>@ViewData["Title"]</h2>
-    <p >Welcome to the Admin Dashboard!</p>
-
-    <!-- Dashboard Cards -->
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card text-white bg-primary">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-user-plus"></i> Register New User</h5>
-                    <p class="card-text">Create a new user (Admin or Customer).</p>
-                    <a asp-controller="Users" asp-action="Register" class="btn btn-light">Register</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card text-white bg-warning">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-users"></i> Manage Users</h5>
-                    <p class="card-text">View and manage all users.</p>
-                    <a asp-controller="Users" asp-action="Index" class="btn btn-light">Manage</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card text-white bg-success">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="fas fa-truck"></i> View Delivery Personnel</h5>
-                    <p class="card-text">Manage delivery team.</p>
-                    <a href="@Url.Action("DeliveryPersonnel", "Admin")" class="btn btn-light">View</a>
-                </div>
-            </div>
-        </div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h3>Admin Panel</h3>
+        <a href="@Url.Action("Index", "Admin")"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="@Url.Action("Register", "Users")"><i class="fas fa-user-plus"></i> Register User</a>
+        <a href="@Url.Action("Index", "Users")"><i class="fas fa-users"></i> Manage Users</a>
+        <a href="@Url.Action("DeliveryPersonnel", "Admin")"><i class="fas fa-truck"></i> Delivery Personnel</a>
+        <a href="@Url.Action("ShopOwners", "Admin")"><i class="fas fa-store"></i> Shop Owners</a>
+        <a href="#"><i class="fas fa-bell"></i> Notifications</a>
+        <a href="@Url.Action("LogOut", "Users")"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 
-    <!-- Owner Approvals -->
-    <h3 class="mt-4">Pending Owner Approvals</h3>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Full Name</th>
-                <th>TIN</th>
-                <th>License</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var owner in Model.Item2)
-            {
-                <tr>
-                    <td>@owner.FullName</td>
-                    <td>@owner.Tin</td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(owner.License))
-                        {
-                            <a href="javascript:void(0);" data-toggle="modal" data-target="#licenseModal-@owner.Id">
-                                <img src="~/images/@owner.License" alt="License" width="100" height="100" style="cursor: pointer; border-radius: 5px;" />
-                            </a>
+    <!-- Content -->
+    <div class="content">
+        <h2>@ViewData["Title"]</h2>
+        <p>Welcome to the Admin Dashboard!</p>
 
-                            <!-- Modal for License Image -->
-                            <div class="modal fade" id="licenseModal-@owner.Id" tabindex="-1" aria-labelledby="licenseModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">License Image</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body text-center">
-                                            <img src="~/images/@owner.License" class="img-fluid" alt="License Image" />
+        <!-- Dashboard Cards -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-store"></i> Total Shops</h5>
+                        <p class="card-text">View the total number of registered shops.</p>
+                        <h3>@ViewBag.TotalShops</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-shopping-cart"></i> Total Orders</h5>
+                        <p class="card-text">Track the total number of orders placed.</p>
+                        <h3>@ViewBag.TotalOrders</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-check-circle"></i> Successful Deliveries</h5>
+                        <p class="card-text">Monitor the number of successful deliveries.</p>
+                        <h3>@ViewBag.SuccessfulDeliveries</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Owner Approvals -->
+        <h3 class="mt-4">Pending Owner Approvals</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>TIN</th>
+                    <th>License</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var owner in Model.Item2)
+                {
+                    <tr>
+                        <td>@owner.FullName</td>
+                        <td>@owner.Tin</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(owner.License))
+                            {
+                                <a href="javascript:void(0);" data-toggle="modal" data-target="#licenseModal-@owner.Id">
+                                    <img src="~/images/@owner.License" alt="License" width="100" height="100" style="cursor: pointer; border-radius: 5px;" />
+                                </a>
+
+                                <!-- Modal for License Image -->
+                                <div class="modal fade" id="licenseModal-@owner.Id" tabindex="-1" aria-labelledby="licenseModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">License Image</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body text-center">
+                                                <img src="~/images/@owner.License" class="img-fluid" alt="License Image" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        }
-                        else
+                            }
+                            else
+                            {
+                                <span>No License Available</span>
+                            }
+                        </td>
+                        <td>
+                            <form asp-action="Approve" method="post">
+                                <input type="hidden" name="id" value="@owner.Id" />
+                                <button type="submit" class="btn btn-success">Approve</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Notifications -->
+        <h3 class="mt-4">Notifications</h3>
+        @if (Model.Item1.Any())
+        {
+            <ul class="list-group">
+                @foreach (var notification in Model.Item1)
+                {
+                    <li class="list-group-item @(notification.IsRead ? "text-muted" : "font-weight-bold")">
+                        @notification.Message - @notification.NotificationDate.ToLocalTime().ToString("MMM dd, yyyy HH:mm")
+                        @if (!notification.IsRead)
                         {
-                            <span>No License Available</span>
+                            <a asp-action="MarkAsRead" asp-route-notificationId="@notification.Id" class="btn btn-sm btn-success float-end">Mark as Read</a>
                         }
-                    </td>
-                    <td>
-                        <form asp-action="Approve" method="post">
-                            <input type="hidden" name="id" value="@owner.Id" />
-                            <button type="submit" class="btn btn-success">Approve</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No new notifications.</p>
+        }
+    </div>
 
-    <!-- Notifications -->
-    <h3 class="mt-4">Notifications</h3>
-    @if (Model.Item1.Any())
-    {
-        <ul class="list-group">
-            @foreach (var notification in Model.Item1)
-            {
-                <li class="list-group-item @(notification.IsRead ? "text-muted" : "font-weight-bold")">
-                    @notification.Message - @notification.NotificationDate.ToLocalTime().ToString("MMM dd, yyyy HH:mm")
-                    @if (!notification.IsRead)
-                    {
-                        <a asp-action="MarkAsRead" asp-route-notificationId="@notification.Id" class="btn btn-sm btn-success float-end">Mark as Read</a>
-                    }
-                </li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p>No new notifications.</p>
-    }
-</div>
-
-<!-- Bootstrap JS & jQuery for Modal -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Bootstrap JS & jQuery for Modal -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

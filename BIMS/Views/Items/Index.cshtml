@@ -5,33 +5,29 @@
 }
 
 
-<h1>Latest Properties</h1>
-
-<div class="container mt-4">
+@* <h1>Latest Properties</h1> *@
+<div class="container mt-5">
+    <h2 class="text-center">Explore Our Products</h2>
     <div class="row">
-        @foreach (var item in Model)
+        @foreach (var category in Model)
         {
             <div class="col-md-3 mb-4">
-                <div class="card shadow-sm">
-                    <img src="@item.ImagePath" class="card-img-top" alt="Property Image"
-                         style="height: 200px; object-fit: cover; border-bottom: 1px solid #f1f1f1;" />
-                    <div class="card-body">
-                        <h5 class="card-title">@item.Name</h5>
-                        
-                        <p class="card-text text-muted">
-                            Category: @item.ItemCategory.Name<br />
-                             @(item.IsAvailable ? "Available" : "Not Available at the moment")
-                        </p>
-
-                        <a href="@Url.Action("Details", new { id = item.Id })"
-                           class="btn btn-sm w-100"
-                           style="background-color: #FF7E00; color: white; border: none; padding: 10px; text-align: center;
-                                  transition: background-color 0.3s ease; text-decoration: none;">
-                            View Details
+                <div class="card p-3 shadow-sm border-0">
+                    <img src="@category.ImagePath" class="fixed-img" style="height: 160px; width: 100%; object-fit: cover; border-radius: 8px;" alt="@category.Name">
+                    <div class="card-body text-start">
+                        <!-- Changed from text-center to text-start -->
+                        <a asp-action="Details" asp-route-id="@category.Id" asp-controller="Items" class="text-decoration-none text-dark">
+                            <h5 class="card-title fw-bold" style="font-size: 1rem; margin-bottom: 5px;">@category.Name</h5>
                         </a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Delete</a>
+                        <h6 class="card-title text-primary" style="font-size: 0.9rem; margin-bottom: 5px;">Price: $@category.Price</h6>
 
-
+                        <p class="card-text text-muted mb-2" style="font-size: 0.85rem;">
+                            <strong>Category:</strong> @category.ItemCategory.Name
+                        </p>
+                        <p class="card-text" style="font-size: 0.85rem; color: @(category.IsAvailable ? "green" : "red");">
+                            @(category.IsAvailable ? "Available" : "Not Available at the moment")
+                        </p>
+                        <button onclick="addToCart(@category.Id, 1)" class="btn btn-sm btn-primary w-100">Buy</button>
                     </div>
                 </div>
             </div>
@@ -39,3 +35,19 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function addToCart(itemId, quantity) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("AddToCart", "Cart")',
+            data: { itemId: itemId, quantity: quantity },
+            success: function (response) {
+                alert(response.success ? response.message : "Error: " + response.message);
+            },
+            error: function (xhr) {
+                alert("An unexpected error occurred: " + xhr.responseText);
+            }
+        });
+    }
+</script>

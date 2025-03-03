@@ -73,7 +73,31 @@ namespace BIMS.Controllers
         }
 
         // Checkout Page (Shows Order Summary & User Info Form)
-        public async Task<IActionResult> Checkout()
+        //public async Task<IActionResult> Checkout()
+        //{
+        //    int? userId = HttpContext.Session.GetInt32("UserId");
+        //    if (userId == null)
+        //    {
+        //        TempData["Error"] = "You must be logged in to proceed to checkout.";
+        //        return RedirectToAction("Login", "Users");
+        //    }
+
+        //    var cartItems = await _cartService.GetUserCartAsync(userId.Value);
+        //    if (cartItems.Count == 0)
+        //    {
+        //        TempData["Error"] = "Your cart is empty.";
+        //        return RedirectToAction("ViewCart", "Cart");
+        //    }
+
+        //    ViewBag.TotalAmount = cartItems.Sum(i => i.TotalPrice * i.Quantity);
+        //    return View(cartItems); // Show user a checkout form
+        //}
+        // 💳 Proceed to Checkout
+
+
+
+
+        public async Task<IActionResult> Checkout(string? address)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
@@ -89,10 +113,37 @@ namespace BIMS.Controllers
                 return RedirectToAction("ViewCart", "Cart");
             }
 
-            ViewBag.TotalAmount = cartItems.Sum(i => i.TotalPrice * i.Quantity);
-            return View(cartItems); // Show user a checkout form
+            // Get contact number from session
+            string? contactNumber = HttpContext.Session.GetString("UserContact");
+
+            if (string.IsNullOrEmpty(address) || string.IsNullOrEmpty(contactNumber))
+            {
+                ViewBag.TotalAmount = cartItems.Sum(i => i.TotalPrice * i.Quantity);
+                ViewBag.ContactNumber = contactNumber; // Pass the phone number to the view
+                return View(cartItems); // Show user the checkout form
+            }
+
+            var orderItems = cartItems.Select(cart => new OrderItem
+            {
+                ItemId = cart.ItemId,
+                Quantity = cart.Quantity,
+                Price = cart.TotalPrice
+            }).ToList();
+
+            var order = await _orderService.CreateOrderAsync(userId.Value, orderItems, address, contactNumber);
+
+            // Notify admin & shop owners
+            await _notificationService.NotifyAdmin(order.Id);
+            await _notificationService.NotifyShopOwners(order.Id);
+
+            // Clear the cart
+            await _cartService.ClearCartAsync(userId.Value);
+
+            TempData["Success"] = "Thank you for shopping with us!";
+            return RedirectToAction("OrderConfirmation");
         }
-        // 💳 Proceed to Checkout
+
+
         public async Task<IActionResult> ProceedToCheckout()
         {
             var userId = HttpContext.Session.GetInt32("UserId") ?? 0;

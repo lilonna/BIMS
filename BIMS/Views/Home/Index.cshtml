@@ -253,7 +253,8 @@
 <!-- Hero Section -->
 <div class="container mt-4">
     <div class="hero bg-dark text-white text-center p-5 rounded">
-        <h1>Fast & Reliable Delivery</h1>
+        <h1>CLICK2CARRY</h1>
+      @*   <p>Click it, We deliver it!</p> *@
         <p>Order from your favorite shops and get it delivered instantly!</p>
         <a href="/Shops/Index" class="btn btn-primary">Browse Shops</a>
     </div>
@@ -272,7 +273,7 @@
                     <div class="card-body">
                         <h5 class="card-title">@item.Name</h5>
                         <p class="text-danger">Sale: $@item.DiscountPrice <s>$@item.Price</s></p>
-                        <a href="/Product/Details/@item.Id" class="btn btn-primary">Buy Now</a>
+                        <button onclick="addToCart(@item.Id, 1)" class="btn btn-sm btn-primary w-100">Buy Now</button>
                     </div>
                 </div>
             </div>
@@ -293,7 +294,7 @@
                     <div class="card-body">
                         <h5 class="card-title">@product.Name</h5>
                         <p class="text-primary">$@product.Price</p>
-                        <a href="/Product/Details/@product.Id" class="btn btn-outline-dark">View</a>
+                        <a href="/Items/Details/@product.Id" class="btn btn-outline-dark">View</a>
                     </div>
                 </div>
             </div>

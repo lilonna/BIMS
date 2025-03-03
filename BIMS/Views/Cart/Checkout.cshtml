@@ -1,9 +1,4 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
-@model List<BIMS.Models.Cart>
+﻿@model List<BIMS.Models.Cart>
 
 @{
     ViewData["Title"] = "Checkout";
@@ -17,8 +12,7 @@
 }
 else
 {
-    <form method="post" action="@Url.Action("CheckoutConfirm", "Cart")">
-
+    <form method="post" action="@Url.Action("Checkout", "Cart")">
         <h3>Review your order</h3>
         <table class="table">
             <thead>
@@ -45,6 +39,16 @@ else
         <div>
             <label>Total: </label>
             <strong>@(Model.Sum(x => x.TotalPrice).ToString("C"))</strong>
+        </div>
+
+        <div class="form-group">
+            <label for="address">Shipping Address:</label>
+            <input type="text" name="address" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+            <label for="contactNumber">Contact Number:</label>
+            <input type="text" name="contactNumber" class="form-control" value="@ViewBag.ContactNumber" readonly />
         </div>
 
         <button type="submit" class="btn btn-success">Place Order</button>

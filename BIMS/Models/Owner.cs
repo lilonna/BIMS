@@ -33,6 +33,9 @@ public partial class Owner
 
 
     public bool IsActive { get; set; }
+    [Required]
+    [StringLength(50)]
+    public string BankAccountNumber { get; set; }
 
     public bool IsDeleted { get; set; }
     [ForeignKey("UserId")]

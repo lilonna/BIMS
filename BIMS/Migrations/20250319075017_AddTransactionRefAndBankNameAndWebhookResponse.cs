@@ -5,7 +5,7 @@
 namespace BIMS.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTransactionRefAndWebhookResponse : Migration
+    public partial class AddTransactionRefAndBankNameAndWebhookResponse : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,6 +17,12 @@ namespace BIMS.Migrations
                 maxLength: 50,
                 nullable: false,
                 defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "TransactionRef",
+                table: "Orders",
+                type: "nvarchar(max)",
+                nullable: true);
         }
 
         /// <inheritdoc />
@@ -25,6 +31,10 @@ namespace BIMS.Migrations
             migrationBuilder.DropColumn(
                 name: "BankName",
                 table: "Owners");
+
+            migrationBuilder.DropColumn(
+                name: "TransactionRef",
+                table: "Orders");
         }
     }
 }

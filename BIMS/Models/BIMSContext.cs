@@ -25,6 +25,7 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
 
     public virtual DbSet<BusinessArea> BusinessAreas { get; set; }
     public DbSet<Cart> Carts { get; set; }
+    public DbSet<ChapaWebhookResponse> ChapaWebhookResponses { get; set; }
     public virtual DbSet<Chat> Chats { get; set; }
 
     public virtual DbSet<ChatStatus> ChatStatuses { get; set; }
@@ -115,7 +116,8 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
+        modelBuilder.Entity<ChapaWebhookResponse>()
+               .HasKey(c => c.Id); // This specifies that 'Id' is the primary key
         // Define primary key for IdentityUserLogin<string>
         modelBuilder.Entity<IdentityUserLogin<string>>()
             .HasKey(l => new { l.LoginProvider, l.ProviderKey });

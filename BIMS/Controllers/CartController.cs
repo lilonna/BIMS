@@ -327,28 +327,53 @@ namespace BIMS.Controllers
 
             return Ok();
         }
-
-        // Order Confirmation Page
         public async Task<IActionResult> OrderConfirmation()
-
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
             {
                 return RedirectToAction("Login", "Users");
             }
-            // Retrieve the last order details for the user, or handle accordingly
-            var lastOrder = await _orderService.GetOrderDetailsAsync(userId.Value);
 
+            var lastOrder = await _orderService.GetOrderDetailsAsync(userId.Value);
             if (lastOrder == null)
             {
-                // Handle case where there is no order (maybe redirect or show a message)
                 TempData["Error"] = "No order found.";
                 return RedirectToAction("Index", "Home");
             }
 
+            if (lastOrder.PaymentStatus != "Paid")
+            {
+                TempData["Error"] = "Payment not confirmed yet.";
+                return RedirectToAction("ViewCart", "Cart");
+            }
+
+            ViewBag.SuccessMessage = "🎉 Thank you for shopping with us! Your order will arrive soon.";
             return View(lastOrder);
         }
+
+
+        // Order Confirmation Page
+        //public async Task<IActionResult> OrderConfirmation()
+
+        //{
+        //    int? userId = HttpContext.Session.GetInt32("UserId");
+        //    if (userId == null)
+        //    {
+        //        return RedirectToAction("Login", "Users");
+        //    }
+        //    // Retrieve the last order details for the user, or handle accordingly
+        //    var lastOrder = await _orderService.GetOrderDetailsAsync(userId.Value);
+
+        //    if (lastOrder == null)
+        //    {
+        //        // Handle case where there is no order (maybe redirect or show a message)
+        //        TempData["Error"] = "No order found.";
+        //        return RedirectToAction("Index", "Home");
+        //    }
+
+        //    return View(lastOrder);
+        //}
 
         public async Task<IActionResult> ClearCart()
     {

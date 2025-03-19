@@ -12,6 +12,10 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient<ChapaService>();
+builder.Services.AddScoped<ChapaService>();
+
+
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {

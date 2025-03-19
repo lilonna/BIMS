@@ -12,6 +12,9 @@ namespace BIMS.Services
         private readonly string _chapaPayoutUrl = "https://api.chapa.co/v1/disburse";
         private readonly string _chapaSecretKey = "CHASECK_TEST-7gsEVIkbNCJXgIpMdFYbmhDzUTGZ0Cvy"; // Replace with your Chapa API key
 
+
+        public ChapaService() { }
+
         public async Task<bool> SendPayout(string bankAccountNumber, string bankCode, string amount, string reason)
         {
             using (HttpClient client = new HttpClient())
@@ -38,5 +41,57 @@ namespace BIMS.Services
                 return result.status == "success";
             }
         }
+
+
+
+
+
+        public async Task<string?> InitiatePaymentAsync(decimal amount, string email, string firstName, string lastName, string phoneNumber, string orderId, string returnUrl, string callbackUrl)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_chapaSecretKey}");
+
+                var requestData = new
+                {
+                    amount = amount,
+                    currency = "ETB",
+                    email = email,
+                    first_name = firstName,
+                    last_name = lastName,
+                    phone_number = phoneNumber,
+                    tx_ref = orderId,
+                    return_url = returnUrl,
+                    callback_url = callbackUrl,
+                    customizations = new
+                    {
+                        title = "Lidya ena betesebochua",
+                        description = "Payment for Order " + orderId
+                    }
+                };
+
+                var json = JsonConvert.SerializeObject(requestData);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync("https://api.chapa.co/v1/transaction/initialize", content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                // ✅ Log response for debugging
+                Console.WriteLine("Chapa Response: " + responseString);
+
+                dynamic result = JsonConvert.DeserializeObject(responseString);
+
+                if (result.status == "success")
+                {
+                    Console.WriteLine("Chapa Checkout URL: " + result.data.checkout_url);
+                    return result.data.checkout_url; // Return Chapa checkout URL
+                }
+
+                Console.WriteLine("Chapa Payment Error: " + responseString);
+                return null; // Payment failed
+            }
+        }
+
+
     }
 }

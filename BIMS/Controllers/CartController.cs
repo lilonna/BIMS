@@ -16,14 +16,17 @@ namespace BIMS.Controllers
         private readonly BIMSContext _context;
         private readonly IOrderService _orderService;
         private readonly INotificationService _notificationService;
-    
+        private readonly ChapaService _chapaService;
 
-        public CartController(ICartService cartService, BIMSContext context, IOrderService orderService, INotificationService notificationService)
+
+
+        public CartController(ICartService cartService, BIMSContext context, IOrderService orderService, INotificationService notificationService , ChapaService chapaService)
         {
             _cartService = cartService;
-            _context = context;
             _orderService = orderService;
             _notificationService = notificationService;
+            _chapaService = chapaService;
+            _context = context;
         }
         public async Task<IActionResult> Index()
         {
@@ -72,8 +75,11 @@ namespace BIMS.Controllers
             }
         }
 
-        // Checkout Page (Shows Order Summary & User Info Form)
-        //public async Task<IActionResult> Checkout()
+
+
+
+
+        //public async Task<IActionResult> Checkout(string? address)
         //{
         //    int? userId = HttpContext.Session.GetInt32("UserId");
         //    if (userId == null)
@@ -89,18 +95,46 @@ namespace BIMS.Controllers
         //        return RedirectToAction("ViewCart", "Cart");
         //    }
 
-        //    ViewBag.TotalAmount = cartItems.Sum(i => i.TotalPrice * i.Quantity);
-        //    return View(cartItems); // Show user a checkout form
+        //    // Get contact number from session
+        //    string? contactNumber = HttpContext.Session.GetString("UserContact");
+
+        //    if (string.IsNullOrEmpty(address) || string.IsNullOrEmpty(contactNumber))
+        //    {
+        //        ViewBag.TotalAmount = cartItems.Sum(i => i.TotalPrice * i.Quantity);
+        //        ViewBag.ContactNumber = contactNumber; // Pass the phone number to the view
+        //        return View(cartItems); // Show user the checkout form
+        //    }
+
+        //    var orderItems = cartItems.Select(cart => new OrderItem
+        //    {
+        //        ItemId = cart.ItemId,
+        //        Quantity = cart.Quantity,
+        //        Price = cart.TotalPrice
+        //    }).ToList();
+
+        //    var order = await _orderService.CreateOrderAsync(userId.Value, orderItems, address, contactNumber);
+
+        //    // Notify admin & shop owners
+        //    await _notificationService.NotifyAdmin(order.Id);
+        //    await _notificationService.NotifyShopOwners(order.Id);
+
+        //    // Clear the cart
+        //    await _cartService.ClearCartAsync(userId.Value);
+
+        //    TempData["Success"] = "Thank you for shopping with us!";
+        //    return RedirectToAction("OrderConfirmation");
         //}
-        // 💳 Proceed to Checkout
-
-
 
 
         public async Task<IActionResult> Checkout(string? address)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null)
+            string? userEmail = HttpContext.Session.GetString("UserEmail");
+            string? userFirstName = HttpContext.Session.GetString("UserFirstName");
+            string? userLastName = HttpContext.Session.GetString("UserLastName");
+            string? contactNumber = HttpContext.Session.GetString("UserContact");
+
+            if (userId == null || string.IsNullOrEmpty(userEmail))
             {
                 TempData["Error"] = "You must be logged in to proceed to checkout.";
                 return RedirectToAction("Login", "Users");
@@ -113,16 +147,61 @@ namespace BIMS.Controllers
                 return RedirectToAction("ViewCart", "Cart");
             }
 
-            // Get contact number from session
-            string? contactNumber = HttpContext.Session.GetString("UserContact");
-
             if (string.IsNullOrEmpty(address) || string.IsNullOrEmpty(contactNumber))
             {
                 ViewBag.TotalAmount = cartItems.Sum(i => i.TotalPrice * i.Quantity);
-                ViewBag.ContactNumber = contactNumber; // Pass the phone number to the view
-                return View(cartItems); // Show user the checkout form
+                ViewBag.ContactNumber = contactNumber;
+                return View(cartItems);
             }
 
+            decimal totalAmount = cartItems.Sum(i => i.TotalPrice * i.Quantity);
+            string orderId = Guid.NewGuid().ToString();
+
+            string returnUrl = Url.Action("PaymentSuccess", "Cart", new { orderId }, Request.Scheme);
+            string callbackUrl = Url.Action("PaymentWebhook", "Cart", null, Request.Scheme);
+
+            Console.WriteLine($"🛒 User ID: {userId}");
+            Console.WriteLine($"📧 User Email: {userEmail}");
+            Console.WriteLine($"👤 Name: {userFirstName} {userLastName}");
+            Console.WriteLine($"📞 Contact Number: {contactNumber}");
+            Console.WriteLine($"💰 Amount: {totalAmount}");
+            Console.WriteLine($"🔗 Redirecting to Chapa...");
+
+            var checkoutUrl = await _chapaService.InitiatePaymentAsync(
+                totalAmount, userEmail, userFirstName, userLastName, contactNumber, orderId, returnUrl, callbackUrl
+            );
+
+            if (checkoutUrl != null)
+            {
+                return Redirect(checkoutUrl);
+            }
+
+            TempData["Error"] = "Payment initiation failed.";
+            return RedirectToAction("ViewCart", "Cart");
+        }
+
+
+        public async Task<IActionResult> PaymentSuccess(string orderId)
+        {
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                TempData["Error"] = "You must be logged in to proceed.";
+                return RedirectToAction("Login", "Users");
+            }
+
+            var cartItems = await _cartService.GetUserCartAsync(userId.Value);
+            if (cartItems.Count == 0)
+            {
+                TempData["Error"] = "Your cart is empty.";
+                return RedirectToAction("ViewCart", "Cart");
+            }
+
+            // Get user details
+            string? contactNumber = HttpContext.Session.GetString("UserContact");
+            string? address = HttpContext.Session.GetString("UserAddress");
+
+            // Create order
             var orderItems = cartItems.Select(cart => new OrderItem
             {
                 ItemId = cart.ItemId,
@@ -139,9 +218,11 @@ namespace BIMS.Controllers
             // Clear the cart
             await _cartService.ClearCartAsync(userId.Value);
 
-            TempData["Success"] = "Thank you for shopping with us!";
+            TempData["Success"] = "Payment successful! Your order has been placed.";
             return RedirectToAction("OrderConfirmation");
         }
+
+
 
 
         public async Task<IActionResult> ProceedToCheckout()
@@ -172,10 +253,13 @@ namespace BIMS.Controllers
             await _cartService.RemoveFromCartAsync(cartId);
             return RedirectToAction("Index", "Cart");
         }
-     
 
 
 
+        public IActionResult ViewCart()
+        {
+            return View();
+        }
 
         [HttpPost]
 
@@ -213,6 +297,35 @@ namespace BIMS.Controllers
 
             TempData["Success"] = "Thank you for shopping with us!";
             return RedirectToAction("OrderConfirmation");
+        }
+        [HttpPost]
+        public async Task<IActionResult> PaymentWebhook([FromBody] ChapaWebhookResponse webhookResponse)
+        {
+            if (webhookResponse == null || string.IsNullOrEmpty(webhookResponse.TxRef))
+            {
+                return BadRequest("Invalid webhook data.");
+            }
+
+            var order = await _orderService.GetOrderByTransactionRef(webhookResponse.TxRef);
+            if (order == null)
+            {
+                return NotFound("Order not found.");
+            }
+
+            if (webhookResponse.Status == "success")
+            {
+                order.PaymentStatus = "Paid";
+                order.Status = "Processing";
+                await _orderService.UpdateOrderAsync(order);
+
+                Console.WriteLine("✅ Payment successful. Order updated.");
+            }
+            else
+            {
+                Console.WriteLine("❌ Payment failed.");
+            }
+
+            return Ok();
         }
 
         // Order Confirmation Page

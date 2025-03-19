@@ -25,6 +25,12 @@ public partial class Owner
     public int? DocumentId { get; set; }
 
     public bool Verified { get; set; }
+    // ✅ Add Bank Account Fields
+    [Required]
+    [StringLength(50)]
+    public string BankName { get; set; } // Store the bank name
+
+   
 
     public DateOnly RegisteredDate { get; set; }
 

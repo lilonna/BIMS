@@ -97,9 +97,11 @@ namespace BIMS.Controllers
                 TempData["ErrorMessage"] = "Invalid email or password.";
                 return View();
             }
-           
+
+            HttpContext.Session.SetString("UserEmail", user.Email);
             HttpContext.Session.SetInt32("UserId", user.Id); // Store as int
-            HttpContext.Session.SetString("UserName", user.FirstName); // Store the name as a string
+            HttpContext.Session.SetString("UserFirstName", user.FirstName); // Store the name as a string
+            HttpContext.Session.SetString("UserLastName", user.LastName);
             HttpContext.Session.SetString("UserContact", user.PhoneNumber ?? "");
             // Get the user's roles
             var userRole = await _userManager.GetRolesAsync(user);

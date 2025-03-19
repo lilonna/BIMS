@@ -20,6 +20,18 @@ namespace BIMS.Services
             _context = context;
             _httpContextAccessor = httpContextAccessor;
         }
+        public async Task<Order> GetOrderByTransactionRef(string transactionRef)
+        {
+            return await _context.Orders
+                .FirstOrDefaultAsync(o => o.TransactionRef == transactionRef);
+        }
+
+        public async Task<bool> UpdateOrderAsync(Order order)
+        {
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
         public async Task<Order> CreateOrderAsync(int userId, List<OrderItem> items, string address, string contactNumber)
         {

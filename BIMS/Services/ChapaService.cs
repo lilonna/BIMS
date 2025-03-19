@@ -46,7 +46,7 @@ namespace BIMS.Services
 
 
 
-        public async Task<string?> InitiatePaymentAsync(decimal amount, string email, string firstName, string lastName, string phoneNumber, string orderId, string returnUrl, string callbackUrl)
+        public async Task<string?> InitiatePaymentAsync(decimal totalAmount, string Email, string firstName, string lastName, string phoneNumber, string orderId, string returnUrl, string callbackUrl)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -54,9 +54,9 @@ namespace BIMS.Services
 
                 var requestData = new
                 {
-                    amount = amount,
+                    amount = totalAmount,
                     currency = "ETB",
-                    email = email,
+                    email = Email,
                     first_name = firstName,
                     last_name = lastName,
                     phone_number = phoneNumber,

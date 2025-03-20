@@ -181,6 +181,46 @@ namespace BIMS.Controllers
         }
 
 
+        //public async Task<IActionResult> PaymentSuccess(string orderId)
+        //{
+        //    int? userId = HttpContext.Session.GetInt32("UserId");
+        //    if (userId == null)
+        //    {
+        //        TempData["Error"] = "You must be logged in to proceed.";
+        //        return RedirectToAction("Login", "Users");
+        //    }
+
+        //    var cartItems = await _cartService.GetUserCartAsync(userId.Value);
+        //    if (cartItems.Count == 0)
+        //    {
+        //        TempData["Error"] = "Your cart is empty.";
+        //        return RedirectToAction("ViewCart", "Cart");
+        //    }
+
+        //    // Get user details
+        //    string? contactNumber = HttpContext.Session.GetString("UserContact");
+        //    string? address = HttpContext.Session.GetString("UserAddress");
+
+        //    // Create order
+        //    var orderItems = cartItems.Select(cart => new OrderItem
+        //    {
+        //        ItemId = cart.ItemId,
+        //        Quantity = cart.Quantity,
+        //        Price = cart.TotalPrice
+        //    }).ToList();
+
+        //    var order = await _orderService.CreateOrderAsync(userId.Value, orderItems, address, contactNumber);
+
+        //    // Notify admin & shop owners
+        //    await _notificationService.NotifyAdmin(order.Id);
+        //    await _notificationService.NotifyShopOwners(order.Id);
+
+        //    // Clear the cart
+        //    await _cartService.ClearCartAsync(userId.Value);
+
+        //    TempData["Success"] = "Payment successful! Your order has been placed.";
+        //    return RedirectToAction("OrderConfirmation");
+        //}
         public async Task<IActionResult> PaymentSuccess(string orderId)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -197,11 +237,22 @@ namespace BIMS.Controllers
                 return RedirectToAction("ViewCart", "Cart");
             }
 
-            // Get user details
+            // ✅ Retrieve Chapa Receipt Details
+            var chapaReceiptUrl = await _chapaService.GetPaymentReceiptUrlAsync(orderId);
+            if (chapaReceiptUrl == null)
+            {
+                TempData["Error"] = "Failed to retrieve receipt.";
+                return RedirectToAction("ViewCart", "Cart");
+            }
+
+            // ✅ Use ViewBag to store receipt URL
+            ViewBag.ChapaReceiptUrl = chapaReceiptUrl;
+
+            // ✅ Get user details
             string? contactNumber = HttpContext.Session.GetString("UserContact");
             string? address = HttpContext.Session.GetString("UserAddress");
 
-            // Create order
+            // ✅ Create order
             var orderItems = cartItems.Select(cart => new OrderItem
             {
                 ItemId = cart.ItemId,
@@ -211,17 +262,27 @@ namespace BIMS.Controllers
 
             var order = await _orderService.CreateOrderAsync(userId.Value, orderItems, address, contactNumber);
 
-            // Notify admin & shop owners
+            // ✅ Update Payment Status
+            order.PaymentStatus = "Paid";
+            order.Status = "Processing";
+            await _orderService.UpdateOrderAsync(order);
+
+            // ✅ Notify Admin & Shop Owners
             await _notificationService.NotifyAdmin(order.Id);
             await _notificationService.NotifyShopOwners(order.Id);
 
-            // Clear the cart
+            // ✅ Clear the cart
             await _cartService.ClearCartAsync(userId.Value);
 
-            TempData["Success"] = "Payment successful! Your order has been placed.";
-            return RedirectToAction("OrderConfirmation");
-        }
+            // ✅ Pass data using ViewBag (No need for a ViewModel)
+            ViewBag.OrderId = order.Id;
+            ViewBag.TotalAmount = order.TotalAmount; // Ensure this is properly set in CreateOrderAsync
+            ViewBag.PaymentStatus = order.PaymentStatus;
+            ViewBag.PaymentDate = DateTime.Now; // or use Chapa's response date
+            ViewBag.Message = "Thank you for shopping with us. Your order will be delivered soon!";
 
+            return View("Receipt"); // ✅ Ensure you have a Receipt.cshtml view
+        }
 
 
 

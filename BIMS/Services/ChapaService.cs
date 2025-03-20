@@ -43,6 +43,25 @@ namespace BIMS.Services
         }
 
 
+        public async Task<string?> GetPaymentReceiptUrlAsync(string orderId)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_chapaSecretKey}");
+
+                var response = await client.GetAsync($"https://api.chapa.co/v1/transaction/verify/{orderId}");
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                dynamic result = JsonConvert.DeserializeObject(responseString);
+
+                if (result.status == "success")
+                {
+                    return result.data.checkout_url; // ✅ Directly return the receipt URL
+                }
+
+                return null; // If verification fails
+            }
+        }
 
 
 

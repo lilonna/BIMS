@@ -1,20 +1,22 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
-@{
-    ViewBag.Title = "Payment Receipt";
+﻿@{
+    ViewBag.Title = "Payment Success";
 }
 
-<div class="receipt-container">
-    <h2>Payment Successful!</h2>
-    <p><strong>Order ID:</strong> @ViewBag.OrderId</p>
-    <p><strong>Total Amount:</strong> $@ViewBag.TotalAmount</p>
-    <p><strong>Status:</strong> <span class="status">@ViewBag.PaymentStatus</span></p>
-    <p><strong>Payment Date:</strong> @ViewBag.PaymentDate.ToString("f")</p>
+<h1>Payment Success</h1>
 
-    <a href="@ViewBag.ChapaReceiptUrl" target="_blank" class="btn btn-primary">View Receipt</a>
+<p>@ViewBag.Message</p>
+<p>Order ID: @ViewBag.OrderId</p>
+<p>Total Amount: @ViewBag.TotalAmount</p>
+<p>Payment Status: @ViewBag.PaymentStatus</p>
+<p>Payment Date: @ViewBag.PaymentDate</p>
 
-    <p class="thank-you-message">@ViewBag.Message</p>
-</div>
+@if (ViewBag.ChapaReceiptUrl != null)
+{
+<h3>Receipt</h3>
+<a href="@ViewBag.ChapaReceiptUrl" target="_blank">Click here to view your receipt</a>
+}
+else
+{
+<p>Receipt could not be retrieved. Please try again later.</p>
+}
+tttttttt

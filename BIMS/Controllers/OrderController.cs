@@ -79,7 +79,7 @@ namespace BIMS.Controllers
             var orders = await _orderService.GetUserOrdersAsync(userId.Value);
             return View(orders);
         }
-        public async Task<IActionResult> OrderDetails(int orderId)
+        public async Task<IActionResult> OrderDetails(string orderId)
         {
             var order = await _orderService.GetOrderByIdAsync(orderId);
 

@@ -42,8 +42,27 @@ namespace BIMS.Services
             }
         }
 
+        public async Task<string?> GetPaymentStatusAsync(int orderId)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_chapaSecretKey}");
 
-        public async Task<string?> GetPaymentReceiptUrlAsync(string orderId)
+                var response = await client.GetAsync($"https://api.chapa.co/v1/transaction/verify/{orderId}");
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                dynamic result = JsonConvert.DeserializeObject(responseString);
+
+                if (result.status == "success")
+                {
+                    return result.data.status; // Return the payment status (e.g., "successful", "failed", etc.)
+                }
+
+                return null; // If the transaction verification fails
+            }
+        }
+
+        public async Task<string?> GetPaymentReceiptUrlAsync(int orderId)
         {
             using (HttpClient client = new HttpClient())
             {

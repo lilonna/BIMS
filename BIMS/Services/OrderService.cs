@@ -41,6 +41,8 @@ namespace BIMS.Services
                 UserId = userId,
                 OrderDate = DateTime.UtcNow,
                 TotalAmount = totalAmount,
+              
+                ShippingAddress = address,
                 Status = "Pending",
                 PaymentStatus = "Unpaid"
             };
@@ -73,7 +75,7 @@ namespace BIMS.Services
             return await _orderRepository.GetOrdersByUserIdAsync(userId);
         }
 
-        public async Task<Order> GetOrderByIdAsync(int orderId)
+        public async Task<Order> GetOrderByIdAsync(string orderId)
         {
             return await _orderRepository.GetOrderByIdAsync(orderId);
         }

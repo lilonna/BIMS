@@ -7,6 +7,6 @@ namespace BIMS.Repositories
     {
         Task<Order> CreateOrderAsync(Order order);
         Task<List<Order>> GetOrdersByUserIdAsync(int userId);
-        Task<Order> GetOrderByIdAsync(int orderId);
+        Task<Order> GetOrderByIdAsync(string orderId);
     }
 }

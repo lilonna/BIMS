@@ -189,7 +189,7 @@ namespace BIMS.Controllers
                 return Redirect(checkoutUrl);
             }
 
-            TempData["Error"] = "Payment initiation failed.";
+            TempData["Error"] = ($"Payment initiation failed for OrderId: {order.Id}");
             return RedirectToAction("ViewCart", "Cart");
         }
 

@@ -73,9 +73,13 @@ namespace BIMS.Controllers
 
             return View(model);
         }
+
+
+
+        // POST: Owners/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FullName,OwnershipTypeId,Tin,License,Verified,RegisteredDate,IsActive,IsDeleted")] Owner model, IFormFile LicenseImage)
+        public async Task<IActionResult> Create([Bind("Id,FullName,OwnershipTypeId,Tin,License,Verified,RegisteredDate,IsActive,IsDeleted,BankName,BankAccountNumber")] Owner model, IFormFile LicenseImage)
         {
             var loggedInUserId = HttpContext.Session.GetInt32("UserId");
             if (!loggedInUserId.HasValue)
@@ -83,24 +87,19 @@ namespace BIMS.Controllers
                 TempData["ErrorMessage"] = "Please log in first.";
                 return RedirectToAction("Login", "Users");
             }
+
             var user = await _context.Users.FindAsync(loggedInUserId.Value);
             if (user == null) return NotFound();
+
             if (ModelState.IsValid)
             {
                 if (LicenseImage != null)
                 {
-                    // Validate file type (allow only images)
-                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-                    string fileExtension = Path.GetExtension(LicenseImage.FileName).ToLower();
-
-                    if (!allowedExtensions.Contains(fileExtension))
-                    {
-                        ModelState.AddModelError("", "Only image files (JPG, JPEG, PNG, WEBP) are allowed.");
-                        ViewData["OwnershipTypeId"] = new SelectList(_context.OwnershipTypes, "Id", "Id", model.OwnershipTypeId);
-                        return View(model);
-                    }
+                    // Skip image validation
+                    // If you still want to save the file, continue with file saving logic
 
                     // Generate a unique filename and store it in wwwroot/uploads/license_images
+                    string fileExtension = Path.GetExtension(LicenseImage.FileName).ToLower();
                     string fileName = Guid.NewGuid().ToString() + fileExtension;
                     string uploadPath = Path.Combine("wwwroot/images", fileName);
 
@@ -111,6 +110,7 @@ namespace BIMS.Controllers
 
                     model.License = fileName; // Store only the image file name in DB
                 }
+
                 model.UserId = user.Id;
                 model.FullName = $"{user.FirstName} {user.MiddleName} {user.LastName}";
                 model.Verified = false; // Waiting for admin approval
@@ -126,17 +126,18 @@ namespace BIMS.Controllers
 
                 // After saving the owner request, notify the admin
                 await _notificationService.NotifyAdminOfOwnerRequest(user.Id);
-                await _context.SaveChangesAsync();
-
+               
 
                 TempData["SuccessMessage"] = "Your request has been submitted. Please wait for admin approval.";
-                return RedirectToAction("Create", "Buildings");
+                return RedirectToAction("Index", "Home");
             }
 
             ViewData["OwnershipTypeId"] = new SelectList(_context.OwnershipTypes, "Id", "Id", model.OwnershipTypeId);
+            ViewData["DocumentId"] = new SelectList(_context.Documentes, "Id", "Id", model.DocumentId);  // Populate DocumentId dropdown with the selected value
             return View(model);
         }
 
+     
         public IActionResult PendingApproval()
         {
             return View(); // Show "Waiting for admin approval" message

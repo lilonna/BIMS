@@ -148,7 +148,7 @@ namespace BIMS.Services
             var adminNotification = new Notification
             {
                 UserId = adminUserId, // Use the filtered admin's User ID
-                Message = $"New order placed for your items! Order ID: {order.Id}. Items: {orderDetails}",
+                Message = $"New order placed! Order ID: {order.Id}. Items: {orderDetails}.Address: {order.ShippingAddress}",
                 IsRead = false,
                 IsDeleted = false,
                 NotificationDate = DateTime.UtcNow,
@@ -194,7 +194,7 @@ namespace BIMS.Services
                     var shopOwnerNotification = new Notification
                     {
                         UserId = shop.UserId, // Shop Owner's User ID
-                        Message = $"New order received! Order ID: {order.Id}. Items: {itemDetails}.",
+                        Message = $"New order received! Order ID: {order.Id}. Items: {itemDetails}. ",
                         IsRead = false,
                         IsDeleted = false,
                         NotificationDate = DateTime.UtcNow,

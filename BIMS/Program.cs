@@ -25,7 +25,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 
 builder.Services.AddDbContext<BIMSContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+            options.UseSqlServer(builder.Configuration.GetConnectionString("BIMSConnection"))
             );
 builder.Services.AddIdentity<User, IdentityRole<int>>()
     .AddRoleManager<RoleManager<IdentityRole<int>>>()
@@ -99,6 +99,8 @@ async Task EnsureRoles(IServiceProvider serviceProvider)
    
     
 }
+
+
 
 // Call the method after building the app
 using (var scope = app.Services.CreateScope())

@@ -25,7 +25,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 
 builder.Services.AddDbContext<BIMSContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("BIMSConnection"))
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
             );
 builder.Services.AddIdentity<User, IdentityRole<int>>()
     .AddRoleManager<RoleManager<IdentityRole<int>>>()

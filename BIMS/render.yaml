@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: BIMS
-    env: dotnet
-    buildCommand: "dotnet publish -c Release -o out"
-    startCommand: "dotnet out/BIMS.dll"
-    envVars:
-      - key: ConnectionStrings__BIMSConnection
-        sync: false

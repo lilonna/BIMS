@@ -22,11 +22,15 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
 });
 
-
-
 builder.Services.AddDbContext<BIMSContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("BIMSConnection"))
-            );
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("BIMSConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure()
+    )
+);
+
+
+
 builder.Services.AddIdentity<User, IdentityRole<int>>()
     .AddRoleManager<RoleManager<IdentityRole<int>>>()
     .AddEntityFrameworkStores<BIMSContext>()

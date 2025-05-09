@@ -1,11 +1,10 @@
 services:
   - type: web
     name: click2carry
-    env: dotnet
-    buildCommand: "dotnet publish -c Release -o out"
-    startCommand: "dotnet out/BIMS.dll"
-  branch: main
-    region: oregon
+    runtime: docker
     plan: free
+    region: oregon
+    branch: main
+    dockerfilePath: ./Dockerfile
 
   

@@ -1,147 +1,308 @@
-﻿
- 
-
-@{
+﻿@{
     ViewData["Title"] = "Home Page";
 }
-<link rel="stylesheet" href="~/css/lilo.css" />
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="~/css/lilo.css" />
+
+<style>
+    :root {
+        --primary-color: #FF7E00;
+        --secondary-color: #2c3e50;
+        --accent-color: #e74c3c;
+        --light-color: #f8f9fa;
+    }
+
+    .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/images/hero-bg.jpg') center/cover no-repeat;
+        border-radius: 10px;
+        padding: 4rem 2rem;
+    }
+
+    .card {
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+    .fixed-img {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+        .btn-primary:hover {
+            background-color: #e67300;
+            border-color: #e67300;
+        }
+
+    .btn-outline-primary {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+    .section-title {
+        position: relative;
+        margin-bottom: 2rem;
+        padding-bottom: 0.5rem;
+    }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+
+    .ad-banner {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 10px;
+        padding: 2rem;
+    }
+
+    footer {
+        background-color: var(--secondary-color);
+    }
+
+    .badge-discount {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: var(--accent-color);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.8rem;
+    }
+</style>
 
 <!-- Hero Section -->
-<div class="container mt-4">
-    <div class="hero bg-dark text-white text-center p-5 rounded">
-        <h1>CLICK2CARRY</h1>
-      @*   <p>Click it, We deliver it!</p> *@
-        <p>Order from your favorite shops and get it delivered instantly!</p>
-        <a href="/Shops/Index" class="btn btn-primary">Browse Shops</a>
+<section class="container my-4">
+    <div class="hero-section text-white text-center">
+        <h1 class="display-4 fw-bold mb-3">CLICK2CARRY</h1>
+        <p class="lead mb-4">Order from your favorite shops and get it delivered instantly!</p>
+        <a href="/Shops/Index" class="btn btn-primary btn-lg px-4">
+            <i class="fas fa-store me-2"></i>Browse Shops
+        </a>
     </div>
-</div>
-
+</section>
 
 <!-- Flash Sales -->
-<div class="container mt-5">
-    <h2>Flash Sales</h2>
-    <div class="row">
+<section class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title">Flash Sales</h2>
+        <a href="#" class="btn btn-outline-danger">View All</a>
+    </div>
+    <div class="row g-4">
         @foreach (var item in ViewBag.OnSale)
         {
-            <div class="col-md-3 mb-4">
-                <div class="card">
-                    <img src="@item.ImagePath" class="fixed-img" style="height: 160px; width: 100%; object-fit: cover;" alt="@item.Name">
-                    <div class="card-body">
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <div class="position-relative">
+                        <img src="@item.ImagePath" class="fixed-img" alt="@item.Name">
+                        <span class="badge-discount">SALE</span>
+                    </div>
+                    <div class="card-body d-flex flex-column">
                         <h5 class="card-title">@item.Name</h5>
-                        <p class="text-danger">Sale: $@item.DiscountPrice <s>$@item.Price</s></p>
-                        <button onclick="addToCart(@item.Id, 1)" class="btn btn-sm btn-primary w-100">Buy Now</button>
+                        <div class="mt-auto">
+                            <p class="text-danger mb-1">
+                                <span class="fw-bold">$@item.DiscountPrice</span>
+                                <small class="text-muted text-decoration-line-through ms-2">$@item.Price</small>
+                            </p>
+                            <button onclick="addToCart(@item.Id, 1)" class="btn btn-primary w-100">
+                                <i class="fas fa-cart-plus me-2"></i>Buy Now
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         }
     </div>
-</div>
-
+</section>
 
 <!-- Best Selling Products -->
-<div class="container mt-5">
-    <h2>Best Selling Products</h2>
-    <div class="row">
+<section class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title">Best Sellers</h2>
+        <a href="#" class="btn btn-outline-primary">View All</a>
+    </div>
+    <div class="row g-4">
         @foreach (var product in ViewBag.BestSellers)
         {
-            <div class="col-md-3 mb-4">
-                <div class="card">
-                    <img src="@product.ImagePath" class="fixed-img" style="height: 160px; width: 100%; object-fit: cover;" alt="@product.Name">
-                    <div class="card-body">
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <img src="@product.ImagePath" class="fixed-img" alt="@product.Name">
+                    <div class="card-body d-flex flex-column">
                         <h5 class="card-title">@product.Name</h5>
-                        <p class="text-primary">$@product.Price</p>
-                        <a href="/Items/Details/@product.Id" class="btn btn-outline-dark">View</a>
+                        <p class="text-primary fw-bold mt-auto">$@product.Price</p>
+                        <div class="d-grid gap-2">
+                            <a href="/Items/Details/@product.Id" class="btn btn-outline-dark">
+                                <i class="fas fa-eye me-2"></i>View Details
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         }
     </div>
-</div>
-
-
-
-
-
-
+</section>
 
 <!-- Shop Section -->
-<div class="container my-4">
-    <h2 class="text-center">Browse Shops</h2>
-    <div class="row">
+<section class="container my-5">
+    <h2 class="section-title text-center mb-4">Browse Shops</h2>
+    <div class="row g-4">
         @foreach (var shop in ViewBag.Shops)
         {
-            <div class="col-md-3 mb-4">
-                <div class="card shadow-sm border-0 style=" border-radius: 8px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; background-color: white;"">
-                    <img src="@shop.ImageUrl" class=" fixed-img" style="height: 200px; object-fit: cover; border-bottom: 1px solid #f1f1f1;" alt="@shop.Name">
-                    <div class="card-body ">
-                        <h5 class="card-title text-primary"
-                            style="font-size: 1.25rem; font-weight: bold; color: #007bff;">
-                            @shop.Name
-                        </h5>
-                        <p class="text-muted small mb-2" style="color: #6c757d; font-size: 0.85rem;">
-                            @shop.Description
-                        </p>
-                        <a href="/Shops/Details/@shop.Id" class="btn btn-sm w-100"
-                           style="background-color: #FF7E00; color: white; border: none; padding: 10px; text-align: center;
-                                  transition: background-color 0.3s ease; text-decoration: none;">View Products</a>
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <img src="@shop.ImageUrl" class="fixed-img" alt="@shop.Name">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-primary">@shop.Name</h5>
+                        <p class="text-muted small flex-grow-1">@shop.Description</p>
+                        <a href="/Shops/Details/@shop.Id" class="btn btn-primary w-100">
+                            <i class="fas fa-box-open me-2"></i>View Products
+                        </a>
                     </div>
                 </div>
             </div>
         }
     </div>
-</div>
-<div class="d-flex justify-content-center mt-3">
-    <a href="@Url.Action("Index", "Shops")" class="btn " style="background-color: #FF7E00; color: white; border: none;  text-align: center;transition: background-color 0.3s ease; text-decoration: none;">See More</a>
-</div>
-
+    <div class="text-center mt-4">
+        <a href="@Url.Action("Index", "Shops")" class="btn btn-primary px-4">
+            <i class="fas fa-arrow-right me-2"></i>See More Shops
+        </a>
+    </div>
+</section>
 
 <!-- Advertisement Section -->
-<div class="container mt-5">
-    <div class="row align-items-center bg-light p-4 rounded shadow-sm">
-        <div class="col-md-6">
-            <h2>Special Offers Just for You!</h2>
-            <p>Don't miss out on our latest deals. Shop now and save big.</p>
-            <a href="/Sales" class="btn btn-danger">Shop Now</a>
-        </div>
-        <div class="col-md-6 text-center">
-            <img src="/images/ads-banner.jpg" alt="Special Offers" class="img-fluid rounded">
+<section class="container my-5">
+    <div class="ad-banner">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2 class="fw-bold mb-3">Special Offers Just for You!</h2>
+                <p class="lead mb-4">Don't miss out on our latest deals. Shop now and save big.</p>
+                <a href="/Sales" class="btn btn-danger btn-lg">
+                    <i class="fas fa-tag me-2"></i>Shop Now
+                </a>
+            </div>
+            <div class="col-md-6">
+                <img src="/images/ads-banner.jpg" alt="Special Offers" class="img-fluid rounded-3">
+            </div>
         </div>
     </div>
-</div>
+</section>
 
 <!-- Explore Our Products Section -->
-<div class="container mt-5">
-    <h2 class="text-center">Explore Our Products</h2>
-    <div class="row">
+<section class="container my-5">
+    <h2 class="section-title text-center mb-4">Explore Our Products</h2>
+    <div class="row g-4">
         @foreach (var category in ViewBag.items)
         {
-            <div class="col-md-3 mb-4">
-                <div class="card p-3 shadow-sm border-0">
-                    <img src="@category.ImagePath" class="fixed-img" style="height: 160px; width: 100%; object-fit: cover; border-radius: 8px;" alt="@category.Name">
-                    <div class="card-body text-start">
-                        <!-- Changed from text-center to text-start -->
+            <div class="col-md-3">
+                <div class="card h-100">
+                    <img src="@category.ImagePath" class="fixed-img" alt="@category.Name">
+                    <div class="card-body d-flex flex-column">
                         <a asp-action="Details" asp-route-id="@category.Id" asp-controller="Items" class="text-decoration-none text-dark">
-                            <h5 class="card-title fw-bold" style="font-size: 1rem; margin-bottom: 5px;">@category.Name</h5>
+                            <h5 class="card-title fw-bold">@category.Name</h5>
                         </a>
-                        <h6 class="card-title text-primary" style="font-size: 0.9rem; margin-bottom: 5px;">Price: $@category.Price</h6>
-
-                        <p class="card-text text-muted mb-2" style="font-size: 0.85rem;">
+                        <p class="text-primary fw-bold">$@category.Price</p>
+                        <p class="text-muted small">
                             <strong>Category:</strong> @category.ItemCategory.Name
                         </p>
-                        <p class="card-text" style="font-size: 0.85rem; color: @(category.IsAvailable ? "green" : "red");">
-                            @(category.IsAvailable ? "Available" : "Not Available at the moment")
+                        <p class="@(category.IsAvailable ? "text-success" : "text-danger") small">
+                            @(category.IsAvailable ? "In Stock" : "Out of Stock")
                         </p>
-                        <button onclick="addToCart(@category.Id, 1)" class="btn btn-sm btn-primary w-100">Buy</button>
+                        <button onclick="addToCart(@category.Id, 1)" class="btn btn-primary w-100 mt-auto">
+                            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                        </button>
                     </div>
                 </div>
             </div>
         }
     </div>
-</div>
-<div class="d-flex justify-content-center mt-3">
-    <a href="@Url.Action("Index", "Items")" class="btn btn-primary">See More</a>
-</div>
+    <div class="text-center mt-4">
+        <a href="@Url.Action("Index", "Items")" class="btn btn-primary px-4">
+            <i class="fas fa-arrow-right me-2"></i>Browse All Products
+        </a>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="py-5 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h5>CLICK2CARRY</h5>
+                <p class="mt-3">Your favorite products delivered to your doorstep in minutes.</p>
+                <div class="social-icons mt-3">
+                    <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="col-md-2 mb-4 mb-md-0">
+                <h5>Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="/" class="text-white text-decoration-none">Home</a></li>
+                    <li class="mb-2"><a href="/Shops" class="text-white text-decoration-none">Shops</a></li>
+                    <li class="mb-2"><a href="/Items" class="text-white text-decoration-none">Products</a></li>
+                    <li class="mb-2"><a href="/Sales" class="text-white text-decoration-none">Deals</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 mb-4 mb-md-0">
+                <h5>Customer Service</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="/Contact" class="text-white text-decoration-none">Contact Us</a></li>
+                    <li class="mb-2"><a href="/FAQ" class="text-white text-decoration-none">FAQs</a></li>
+                    <li class="mb-2"><a href="/Shipping" class="text-white text-decoration-none">Shipping Policy</a></li>
+                    <li class="mb-2"><a href="/Returns" class="text-white text-decoration-none">Returns & Refunds</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h5>Contact Info</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> 123 Delivery St, City</li>
+                    <li class="mb-2"><i class="fas fa-phone me-2"></i> (123) 456-7890</li>
+                    <li class="mb-2"><i class="fas fa-envelope me-2"></i> support@click2carry.com</li>
+                </ul>
+            </div>
+        </div>
+        <hr class="my-4 bg-light">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start">
+                <p class="mb-0">&copy; @DateTime.Now.Year CLICK2CARRY. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <p class="mb-0">
+                    <a href="/Privacy" class="text-white text-decoration-none me-3">Privacy Policy</a>
+                    <a href="/Terms" class="text-white text-decoration-none">Terms of Service</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -151,7 +312,31 @@
             url: '@Url.Action("AddToCart", "Cart")',
             data: { itemId: itemId, quantity: quantity },
             success: function (response) {
-                alert(response.success ? response.message : "Error: " + response.message);
+                if (response.success) {
+                    // Show toast notification
+                    const toast = document.createElement('div');
+                    toast.className = 'position-fixed bottom-0 end-0 p-3';
+                    toast.style.zIndex = '11';
+                    toast.innerHTML = `
+                            <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                                <div class="toast-header bg-success text-white">
+                                    <strong class="me-auto">Success</strong>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                </div>
+                                <div class="toast-body">
+                                    ${response.message}
+                                </div>
+                            </div>
+                        `;
+                    document.body.appendChild(toast);
+
+                    // Remove toast after 3 seconds
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 3000);
+                } else {
+                    alert("Error: " + response.message);
+                }
             },
             error: function (xhr) {
                 alert("An unexpected error occurred: " + xhr.responseText);
@@ -159,8 +344,4 @@
         });
     }
 </script>
-
-<!-- Footer -->
-<footer class="bg-dark text-white text-center p-4 mt-5">
-    <p>&copy; @DateTime.Now.Year Your Delivery App | All Rights Reserved</p>
-</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

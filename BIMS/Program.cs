@@ -103,7 +103,12 @@ async Task EnsureRoles(IServiceProvider serviceProvider)
 
 
 }
- 
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<BIMSContext>();
+    db.Database.Migrate();
+}
 
 
 // Call the method after building the app

@@ -291,6 +291,8 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
         modelBuilder.Entity<Item>(entity =>
         {
             entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(i => i.DiscountPrice)
+        .HasColumnType("decimal(18,2)");
 
             entity.HasOne(d => d.ItemCategory).WithMany(p => p.Items)
                 .OnDelete(DeleteBehavior.ClientSetNull)

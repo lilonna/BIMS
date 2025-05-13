@@ -1,21 +1,22 @@
 # Use the official .NET SDK image to build the app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
+WORKDIR /src
 
-# Copy csproj and restore as distinct layers
-COPY *.csproj ./
-RUN dotnet restore
+# Copy the csproj file and restore dependencies
+COPY BIMS/BIMS.csproj ./BIMS/
+RUN dotnet restore ./BIMS/BIMS.csproj
 
-# Copy everything else and build
-COPY . ./
-RUN dotnet publish -c Release -o out
+# Copy the full source code and build
+COPY . .
+WORKDIR /src/BIMS
+RUN dotnet publish -c Release -o /app/out
 
 # Use the ASP.NET runtime image to run the app
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/out .
 
-# Set environment variable to allow container port binding
+# Set environment variable and expose port
 ENV ASPNETCORE_URLS=http://+:80
 EXPOSE 80
 

@@ -36,9 +36,9 @@ public partial class User : IdentityUser<int>
 
     public DateOnly CreatedDate { get; set; }
 
-    public bool IsActive { get; set; }
+    public bool IsActive { get; set; } = true;
 
-    public bool IsDeleted { get; set; }
+    public bool IsDeleted { get; set; } = false;
 
     [Required]
     [StringLength(30)]

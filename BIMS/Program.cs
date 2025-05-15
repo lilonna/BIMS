@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using BIMS.Repositories;
 using BIMS.Services;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
+
 
 
 
@@ -23,7 +25,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 
 builder.Services.AddDbContext<BIMSContext>(options =>
-    options.UseSqlServer(
+    options.UseNpgsql(
         builder.Configuration.GetConnectionString("BIMSConnection"),
         sqlOptions => sqlOptions.EnableRetryOnFailure()
     )

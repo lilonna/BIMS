@@ -111,10 +111,28 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
     public virtual new DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("name=BIMSConnection");
+        => optionsBuilder.UseNpgsql("name=BIMSConnection");
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        foreach (var entity in modelBuilder.Model.GetEntityTypes())
+        {
+            var tableName = entity.GetTableName();
+            if (tableName.StartsWith("AspNet"))
+            {
+                entity.SetTableName(tableName.ToLower());
+            }
+            entity.SetTableName($"\"{entity.ClrType.Name}\"");
+
+            // Preserve exact case for columns
+            foreach (var property in entity.GetProperties())
+            {
+                property.SetColumnName($"\"{property.Name}\"");
+            }
+        }
+        // Preserve exact case for tables
+      
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<ChapaWebhookResponse>()
                .HasKey(c => c.Id); // This specifies that 'Id' is the primary key
@@ -198,11 +216,11 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
         modelBuilder.Entity<OrderItem>()
             .Property(oi => oi.Price)
             .HasPrecision(18, 2); // Define precision
-    
 
 
+    // For PostgreSQL
 
-    modelBuilder.Entity<Chat>(entity =>
+        modelBuilder.Entity<Chat>(entity =>
         {
             entity.Property(e => e.IsActive).HasDefaultValue(true);
 
@@ -578,9 +596,12 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
         {
             entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
-
+     
         modelBuilder.Entity<User>(entity =>
         {
+            entity.Property(e => e.Id)
+      .UseIdentityAlwaysColumn(); 
+
             entity.Property(e => e.IsActive).HasDefaultValue(true);
 
             entity.HasOne(d => d.Gender).WithMany(p => p.Users)

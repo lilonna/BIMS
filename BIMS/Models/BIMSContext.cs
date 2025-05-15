@@ -118,21 +118,34 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
     {
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
         {
+            // Set table names to lowercase (including AspNet Identity tables)
             var tableName = entity.GetTableName();
-            if (tableName.StartsWith("AspNet"))
-            {
-                entity.SetTableName(tableName.ToLower());
-            }
-            entity.SetTableName($"\"{entity.ClrType.Name}\"");
+            entity.SetTableName(tableName.ToLower());
 
-            // Preserve exact case for columns
+            // Set column names to lowercase
             foreach (var property in entity.GetProperties())
             {
-                property.SetColumnName($"\"{property.Name}\"");
+                property.SetColumnName(property.Name.ToLower());
+            }
+
+            // Handle foreign key constraints as well (optional but recommended)
+            foreach (var key in entity.GetKeys())
+            {
+                key.SetName(key.GetName().ToLower());
+            }
+
+            foreach (var fk in entity.GetForeignKeys())
+            {
+                fk.SetConstraintName(fk.GetConstraintName().ToLower());
+            }
+
+            foreach (var index in entity.GetIndexes())
+            {
+                index.SetDatabaseName(index.GetDatabaseName().ToLower());
             }
         }
         // Preserve exact case for tables
-      
+
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<ChapaWebhookResponse>()
                .HasKey(c => c.Id); // This specifies that 'Id' is the primary key

@@ -218,23 +218,5 @@ namespace BIMS.Services
                 await _context.SaveChangesAsync();
             }
         }
-
-        //public async Task<List<Notification>> GetUserNotifications()
-        //{
-        //    var userIdClaim = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        //    if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
-        //    {
-        //        return new List<Notification>(); // No user is logged in
-        //    }
-
-        //    var notifications = await _context.Notifications
-        //.Where(n => n.UserId == userId && !n.IsRead)
-        //.OrderByDescending(n => n.NotificationDate)
-        //.ToListAsync();
-
-        //    Console.WriteLine($"Found {notifications.Count} notifications for user {userId}.");
-        //    return notifications;
-        //}
     }
 }

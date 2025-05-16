@@ -33,6 +33,7 @@ builder.Services.AddDbContext<BIMSContext>(options =>
 
 
 
+
 builder.Services.AddIdentity<User, IdentityRole<int>>()
     .AddRoleManager<RoleManager<IdentityRole<int>>>()
     .AddEntityFrameworkStores<BIMSContext>()
@@ -105,6 +106,7 @@ async Task EnsureRoles(IServiceProvider serviceProvider)
 
 
 }
+
 // Call the method after building the app
 using (var scope = app.Services.CreateScope())
 {

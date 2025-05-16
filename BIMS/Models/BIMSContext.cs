@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BIMS.Models;
 
@@ -16,6 +17,8 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
         : base(options)
     {
     }
+
+
 
     public virtual DbSet<Building> Buildings { get; set; }
 
@@ -116,6 +119,10 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        
+        
+        
+        
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
         {
             // Set table names to lowercase (including AspNet Identity tables)
@@ -147,6 +154,31 @@ public partial class BIMSContext : IdentityDbContext<User, IdentityRole<int>, in
         // Preserve exact case for tables
 
         base.OnModelCreating(modelBuilder);
+
+
+        var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
+            v => v.ToUniversalTime(),
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+        var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
+            v => v.HasValue ? v.Value.ToUniversalTime() : v,
+            v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime))
+                {
+                    property.SetValueConverter(dateTimeConverter);
+                }
+                else if (property.ClrType == typeof(DateTime?))
+                {
+                    property.SetValueConverter(nullableDateTimeConverter);
+                }
+            }
+        }
+
         modelBuilder.Entity<ChapaWebhookResponse>()
                .HasKey(c => c.Id); // This specifies that 'Id' is the primary key
         // Define primary key for IdentityUserLogin<string>

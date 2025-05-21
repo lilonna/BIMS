@@ -1,97 +1,65 @@
 ﻿@model IEnumerable<BIMS.Models.Building>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Building Management";
 }
-<div>
-    <h1 style=" text-align:center; color: royalblue;">Welcome To Building Tables</h1>
+
+<div class="text-center mb-4">
+    <h1 style="color: royalblue;">Building Management</h1>
 </div>
 
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-primary">Add New Building</a>
+</div>
 
-
-<table class="table table-striped table-bordered table-hover " style="padding-left:100px;">
-    <thead style=" background-color: royalblue; color:white; ">
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ConstractionYear)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NumberOfFloor)
-            </th>
-           @*  <th>
-                @Html.DisplayNameFor(model => model.IsActive)
-            </th> 
-            <th>
-                @Html.DisplayNameFor(model => model.IsDeleted)
-            </th> *@
-            <th>
-                @Html.DisplayNameFor(model => model.BuildingType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.City)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Location)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Owner)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.OwnershipType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UseType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover">
+        <thead class="table-primary">
             <tr>
-                <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                <td>@Html.DisplayFor(modelItem => item.Description)</td>
-                <td>@Html.DisplayFor(modelItem => item.ConstractionYear)</td>
-                <td>@Html.DisplayFor(modelItem => item.NumberOfFloor)</td>
-               @*  <td>@Html.DisplayFor(modelItem => item.IsActive)</td>
-                <td>@Html.DisplayFor(modelItem => item.IsDeleted)</td> *@
-                <td>@Html.DisplayFor(modelItem => item.BuildingType.Id)</td>
-                <td>@Html.DisplayFor(modelItem => item.City.Name)</td>
-                <td>@Html.DisplayFor(modelItem => item.Location.Name)</td>
-                <td>@Html.DisplayFor(modelItem => item.Owner.Id)</td>
-                <td>@Html.DisplayFor(modelItem => item.OwnershipType.Id)</td>
-                <td>@Html.DisplayFor(modelItem => item.UseType.Id)</td>
-                <td>@Html.DisplayFor(modelItem => item.User.Id)</td>
-                <td>
-
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Updates
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><button class="dropdown-item" type="button"><a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm  btn-warning">Edit</a></button></li>
-                            <li><button class="dropdown-item" type="button"> <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a></button></li>
-                            <li><button class="dropdown-item" type="button"><a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a></button></li>
-                        </ul>
-                    </div>
-                    
-                   
-                    
-                </td>
+                <th>@Html.DisplayNameFor(model => model.Name)</th>
+                <th>@Html.DisplayNameFor(model => model.Description)</th>
+                <th>@Html.DisplayNameFor(model => model.ConstractionYear)</th>
+                <th>Floors</th>
+                <th>Building Type</th>
+                <th>City</th>
+                <th>Location</th>
+                <th>Owner</th>
+                <th>Ownership</th>
+                <th>Use Type</th>
+                <th>Created By</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
-<p>
-    <a asp-action="Create" class="btn btn-primary">Create New</a>
-</p>
-
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                    <td>@Html.DisplayFor(modelItem => item.ConstractionYear)</td>
+                    <td>@Html.DisplayFor(modelItem => item.NumberOfFloor)</td>
+                    <td>@Html.DisplayFor(modelItem => item.BuildingType.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.City.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Location.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Owner.FullName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.OwnershipType.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.UseType.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.User.UserName)</td>
+                    <td>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                Actions
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-action="Edit" asp-route-id="@item.Id">Edit</a></li>
+                                <li><a class="dropdown-item" asp-action="Details" asp-route-id="@item.Id">Details</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

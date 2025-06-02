@@ -1,6 +1,29 @@
 ﻿@{
     ViewBag.Title = "Payment Success";
 }
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .success-icon {
+        animation: bounce 1s;
+    }
+
+    @@keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+
+        40% {
+            transform: translateY(-20px);
+        }
+
+        60% {
+            transform: translateY(-10px);
+        }
+    }
+</style>
 
 <div class="container text-center py-5">
     <div class="success-icon mb-4">
@@ -46,16 +69,3 @@
     </div>
 </div>
 
-<style>
-    body {
-        background-color: #f8f9fa;
-    }
-    .success-icon {
-        animation: bounce 1s;
-    }
-    @@keyframes bounce {
-        0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-        40% {transform: translateY(-20px);}
-        60% {transform: translateY(-10px);}
-    }
-</style>

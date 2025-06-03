@@ -114,38 +114,7 @@
     </div>
 </section>
 
-@* <!-- Flash Sales -->
-<section class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="section-title">Flash Sales</h2>
-        <a href="#" class="btn btn-outline-danger">View All</a>
-    </div>
-    <div class="row g-4">
-        @foreach (var item in ViewBag.OnSale)
-        {
-            <div class="col-md-3">
-                <div class="card h-100">
-                    <div class="position-relative">
-                        <img src="@item.ImagePath" class="fixed-img" alt="@item.Name">
-                        <span class="badge-discount">SALE</span>
-                    </div>
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">@item.Name</h5>
-                        <div class="mt-auto">
-                            <p class="text-danger mb-1">
-                                <span class="fw-bold">$@item.DiscountPrice</span>
-                                <small class="text-muted text-decoration-line-through ms-2">$@item.Price</small>
-                            </p>
-                            <button onclick="addToCart(@item.Id, 1)" class="btn btn-primary w-100">
-                                <i class="fas fa-cart-plus me-2"></i>Buy Now
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
-</section> *@
+
 
 <!-- Best Selling Products -->
 <section class="container my-5">
@@ -163,7 +132,7 @@
                         <h5 class="card-title">@product.Name</h5>
                         <p class="text-primary fw-bold mt-auto">$@product.Price</p>
                         <div class="d-grid gap-2">
-                            <a href="/Items/Details/@product.Id" class="btn btn-outline-dark">
+                            <a href="javascript:void(0);" onclick="showItemDetails(@product.Id)" class="btn btn-outline-dark">
                                 <i class="fas fa-eye me-2"></i>View Details
                             </a>
                         </div>
@@ -239,9 +208,12 @@
                         <p class="@(category.IsAvailable ? "text-success" : "text-danger") small">
                             @(category.IsAvailable ? "In Stock" : "Out of Stock")
                         </p>
-                        <button onclick="addToCart(@category.Id, 1)" class="btn btn-primary w-100 mt-auto">
+                        <button onclick="addToCart(@category.Id, 1)"
+                                class="btn w-100 mt-auto"
+                                style="background-color: #007BFF; color: white; border: none;">
                             <i class="fas fa-cart-plus me-2"></i>Add to Cart
                         </button>
+
                     </div>
                 </div>
             </div>
@@ -253,6 +225,34 @@
         </a>
     </div>
 </section>
+<div class="modal fade" id="itemDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 650px;">
+        <div class="modal-content border-0">
+            <div class="modal-header bg-primary text-white py-3">
+                <h5 class="modal-title fs-5">
+                    <i class="fas fa-info-circle me-2"></i>Product Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0" id="modalItemContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading product details...</p>
+                </div>
+            </div>
+            <div class="modal-footer bg-light py-3">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Close
+                </button>
+                <button type="button" class="btn btn-primary" onclick="addToCart(modalItemId, 1)">
+                    <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Footer -->
 <footer class="py-5 mt-5">
@@ -289,8 +289,8 @@
             <div class="col-md-3">
                 <h5>Contact Info</h5>
                 <ul class="list-unstyled">
-                    <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> 123 Delivery St, City</li>
-                    <li class="mb-2"><i class="fas fa-phone me-2"></i> (123) 456-7890</li>
+                    <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> piasa, Hawasa City</li>
+                    <li class="mb-2"><i class="fas fa-phone me-2"></i> (251) 941-2058-33</li>
                     <li class="mb-2"><i class="fas fa-envelope me-2"></i> support@click2carry.com</li>
                 </ul>
             </div>
@@ -348,5 +348,50 @@
                 alert("An unexpected error occurred: " + xhr.responseText);
             }
         });
+    }
+    function showItemDetails(itemId) {
+        modalItemId = itemId;
+        $('#modalItemContent').html(`
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading product details...</p>
+                </div>
+            `);
+
+        // Load the details content
+        $('#modalItemContent').load(`/Items/Details/${itemId} .card-body`, function () {
+            // Transform the loaded content for modal display
+            const $content = $(this);
+            $content.find('.card-body').removeClass('card-body').addClass('p-4');
+
+            // Create a more compact layout
+            $content.html(`
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            ${$content.find('img').parent().html()}
+                        </div>
+                        <div class="col-md-7">
+                            <h4 class="fw-bold mb-2">${$content.find('h4').text()}</h4>
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="text-primary fw-bold fs-4 me-3">$${$content.find('.text-primary.fw-bold').text().replace('$', '')}</span>
+                                ${$content.find('.badge').parent().html()}
+                            </div>
+                            ${$content.find('dl').html()}
+                            <div class="availability mt-3">
+                                ${$content.find('.text-success, .text-danger').parent().html()}
+                            </div>
+                        </div>
+                    </div>
+                `);
+
+            // Style adjustments
+            $content.find('img').addClass('img-fluid rounded-3');
+            $content.find('dt').addClass('col-5 text-muted');
+            $content.find('dd').addClass('col-7 fw-medium');
+        });
+
+        $('#itemDetailsModal').modal('show');
     }
 </script>

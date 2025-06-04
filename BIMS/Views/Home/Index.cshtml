@@ -234,7 +234,7 @@
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-0" id="modalItemContent">
+            <div class="modal-body p-4" id="modalItemContent">
                 <div class="text-center py-4">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
@@ -352,44 +352,72 @@
     function showItemDetails(itemId) {
         modalItemId = itemId;
         $('#modalItemContent').html(`
-                <div class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-2 text-muted">Loading product details...</p>
-                </div>
-            `);
-
-        // Load the details content
-        $('#modalItemContent').load(`/Items/Details/${itemId} .card-body`, function () {
-            // Transform the loaded content for modal display
-            const $content = $(this);
-            $content.find('.card-body').removeClass('card-body').addClass('p-4');
-
-            // Create a more compact layout
-            $content.html(`
-                    <div class="row g-3">
-                        <div class="col-md-5">
-                            ${$content.find('img').parent().html()}
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
                         </div>
-                        <div class="col-md-7">
-                            <h4 class="fw-bold mb-2">${$content.find('h4').text()}</h4>
-                            <div class="d-flex align-items-center mb-3">
-                                <span class="text-primary fw-bold fs-4 me-3">$${$content.find('.text-primary.fw-bold').text().replace('$', '')}</span>
-                                ${$content.find('.badge').parent().html()}
-                            </div>
-                            ${$content.find('dl').html()}
-                            <div class="availability mt-3">
-                                ${$content.find('.text-success, .text-danger').parent().html()}
-                            </div>
-                        </div>
+                        <p class="mt-2 text-muted">Loading product details...</p>
                     </div>
                 `);
 
-            // Style adjustments
-            $content.find('img').addClass('img-fluid rounded-3');
-            $content.find('dt').addClass('col-5 text-muted');
-            $content.find('dd').addClass('col-7 fw-medium');
+        // Load the entire details page
+        $.get(`/Items/Details/${itemId}`, function (data) {
+            // Create a temporary div to parse the response
+            const $temp = $('<div>').html(data);
+
+            // Extract the main content
+            const $content = $temp.find('.card-body').first();
+
+            if ($content.length) {
+                // Get the price - we'll look for it in several common places
+                let priceText = '$0.00';
+                if ($content.find('.price').length) {
+                    priceText = $content.find('.price').text();
+                } else if ($content.find('[data-price]').length) {
+                    priceText = '$' + $content.find('[data-price]').data('price');
+                } else if ($content.find('.text-primary.fw-bold').length) {
+                    priceText = $content.find('.text-primary.fw-bold').text();
+                }
+
+                // Create the modal content structure
+                const modalHtml = `
+                            <div class="row g-3">
+                                <div class="col-md-5">
+                                    ${$content.find('img').length ? $content.find('img').parent().html() : '<div class="bg-light rounded-3" style="height:200px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-image fa-3x text-muted"></i></div>'}
+                                </div>
+                                <div class="col-md-7">
+                                    <h4 class="fw-bold mb-2">${$content.find('h4').length ? $content.find('h4').text() : 'Product Name'}</h4>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="text-primary fw-bold fs-4 me-3">${priceText}</span>
+                                        ${$content.find('.badge').length ? $content.find('.badge').parent().html() : ''}
+                                    </div>
+                                    ${$content.find('dl').length ? $content.find('dl').html() : '<p>No additional details available</p>'}
+                                    <div class="availability mt-3">
+                                        ${$content.find('.text-success, .text-danger').length ? $content.find('.text-success, .text-danger').parent().html() : '<span class="text-muted">Availability not specified</span>'}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                $('#modalItemContent').html(modalHtml);
+
+                // Apply consistent styling
+                $('#modalItemContent img').addClass('img-fluid rounded-3');
+                $('#modalItemContent dt').addClass('col-5 text-muted');
+                $('#modalItemContent dd').addClass('col-7 fw-medium');
+            } else {
+                $('#modalItemContent').html(`
+                            <div class="alert alert-warning">
+                                Could not load product details. Please try again.
+                            </div>
+                        `);
+            }
+        }).fail(function () {
+            $('#modalItemContent').html(`
+                        <div class="alert alert-danger">
+                            Failed to load product details. Please try again later.
+                        </div>
+                    `);
         });
 
         $('#itemDetailsModal').modal('show');

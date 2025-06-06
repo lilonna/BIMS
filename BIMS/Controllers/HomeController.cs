@@ -42,6 +42,19 @@ namespace BIMS.Controllers
         }
 
 
+        [HttpPost]
+        public IActionResult SendMessage(ContactFormModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // You could log, email, or save the message here
+                TempData["SuccessMessage"] = "Your message has been sent successfully!";
+                return RedirectToAction("Contact");
+            }
+
+            TempData["ErrorMessage"] = "Please fill out the form correctly.";
+            return View("Contact", model);
+        }
 
         public IActionResult conatctus()
         {

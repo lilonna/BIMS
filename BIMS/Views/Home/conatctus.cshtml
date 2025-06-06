@@ -1,13 +1,58 @@
 ﻿@{
-    Layout = "_Layout_Login";
+    ViewData["Title"] = "Contact Us";
 }
 
+<div class="container mt-5 mb-5">
+    <h2 class="text-center mb-4">Get in Touch with CLICK2CARRY</h2>
+    <p class="text-center mb-5">Have a question, feedback, or need help? Reach out to us below and we’ll get back to you shortly.</p>
 
-@{
-    ViewData["Title"] = "Home Page";
-}
+    <div class="row">
+        <!-- Contact Form -->
+        <div class="col-md-6">
+            <form method="post" asp-controller="Home" asp-action="SendMessage">
+                <div class="mb-3">
+                    <label for="Name" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="Name" name="Name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="Email" class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="Email" name="Email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="Subject" class="form-label">Subject</label>
+                    <input type="text" class="form-control" id="Subject" name="Subject">
+                </div>
+                <div class="mb-3">
+                    <label for="Message" class="form-label">Message</label>
+                    <textarea class="form-control" id="Message" name="Message" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary px-4">Send Message</button>
+            </form>
+        </div>
 
-<div class="text-center">
-    <h1 class="display-4">You can contact us using this adresses</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+        <!-- Contact Details -->
+        <div class="col-md-6">
+            <h5>Contact Information</h5>
+            <ul class="list-unstyled mt-3">
+                <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> Piasa, Hawasa City, Ethiopia</li>
+                <li class="mb-2"><i class="fas fa-phone me-2"></i> (251) 941-2058-33</li>
+                <li class="mb-2"><i class="fas fa-envelope me-2"></i> support@click2carry.com</li>
+            </ul>
+
+            <h5 class="mt-4">Business Hours</h5>
+            <ul class="list-unstyled">
+                <li>Monday - Friday: 8:00 AM – 8:00 PM</li>
+                <li>Saturday: 9:00 AM – 5:00 PM</li>
+                <li>Sunday: Closed</li>
+            </ul>
+
+            <h5 class="mt-4">Follow Us</h5>
+            <div class="social-icons mt-2">
+                <a href="#" class="text-dark me-3"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="text-dark me-3"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-dark me-3"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-dark"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+    </div>
 </div>

@@ -49,12 +49,18 @@ namespace BIMS.Controllers
             {
                 // You could log, email, or save the message here
                 TempData["SuccessMessage"] = "Your message has been sent successfully!";
-                return RedirectToAction("Contact");
+                return RedirectToAction("contactus");
             }
 
             TempData["ErrorMessage"] = "Please fill out the form correctly.";
-            return View("Contact", model);
+            return View("contactus", model);
         }
+        [HttpGet]
+        public IActionResult contactus()
+        {
+            return View();
+        }
+
 
         public IActionResult conatctus()
         {

@@ -194,27 +194,41 @@ namespace BIMS.Controllers
             if (image == null || image.Length == 0)
                 return null;
 
-            using (var stream = image.OpenReadStream())
+            try
             {
-                var uploadParams = new CloudinaryDotNet.Actions.ImageUploadParams
+                using (var stream = image.OpenReadStream())
                 {
-                    File = new FileDescription(image.FileName, stream),
-                    Folder = "shop_images", // optional: stores images in a folder
-                    UseFilename = true,
-                    UniqueFilename = true,
-                    Overwrite = false
-                };
+                    var uploadParams = new CloudinaryDotNet.Actions.ImageUploadParams
+                    {
+                        File = new FileDescription(image.FileName, stream),
+                        Folder = "shop_images",
+                        UseFilename = true,
+                        UniqueFilename = true,
+                        Overwrite = false
+                    };
 
-                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
 
-                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
-                {
-                    return uploadResult.SecureUrl.ToString(); // Save this URL to DB
+                    if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        return uploadResult.SecureUrl.ToString();
+                    }
+                    else
+                    {
+                        // Log and surface the error
+                        var errorMessage = $"Cloudinary upload failed: {uploadResult.Error?.Message}";
+                        Console.WriteLine(errorMessage);
+                        throw new Exception(errorMessage);
+                    }
                 }
             }
-
-            return null;
+            catch (Exception ex)
+            {
+                // Re-throw for UI display
+                throw new Exception($"Image upload error: {ex.Message}");
+            }
         }
+
 
 
 
@@ -224,22 +238,39 @@ namespace BIMS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,UserId,BusinessAreaId,Description,IsActive,IsDeleted")] Shop shop, IFormFile image)
         {
-            if (ModelState.IsValid)
+            try
             {
                 if (image != null)
                 {
                     var imageUrl = await UploadImage(image);
                     shop.ImageUrl = imageUrl;
+
+                    // Manually remove the validation error for ImageUrl (since it now has value)
+                    ModelState.Remove(nameof(shop.ImageUrl));
+                }
+                else
+                {
+                    ModelState.AddModelError("ImageUrl", "Image is required.");
                 }
 
-                _context.Add(shop);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    _context.Add(shop);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, $"An error occurred while uploading the image: {ex.Message}");
             }
 
             ViewData["BusinessAreaId"] = new SelectList(_context.BusinessAreas, "Id", "Name", shop.BusinessAreaId);
             return View(shop);
         }
+
+
+
 
 
         //has shop
@@ -286,7 +317,7 @@ namespace BIMS.Controllers
                 .OrderByDescending(n => n.NotificationDate)
                 .ToListAsync();
 
-            ViewBag.Notifications = notifications;  // ✅ Assigning notifications to ViewBag
+            ViewBag.Notifications = notifications;  //  Assigning notifications to ViewBag
 
             ViewBag.ItemCount = shop.Items.Count;
             ViewBag.ShopName = shop.Name;
@@ -301,7 +332,7 @@ namespace BIMS.Controllers
         // GET: Shops/Edit/5
         public async Task<IActionResult> Edit(int? id,int?userId){
 
-            // Check if the user is logged in by verifying the session or authentication
+         
             var loggedInUserId = HttpContext.Session.GetInt32("UserId");
             if (id == null)
             {
@@ -320,40 +351,59 @@ namespace BIMS.Controllers
         }
 
         // POST: Shops/Edit/5
-     
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,UserId,BusinessAreaId,Description,IsActive,IsDeleted")] Shop shop)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,UserId,BusinessAreaId,Description,IsActive,IsDeleted")] Shop shop, IFormFile image)
         {
             if (id != shop.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            var existingShop = await _context.Shops.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
+            if (existingShop == null)
             {
-                try
+                return NotFound();
+            }
+
+            try
+            {
+                // If new image is uploaded, replace the old one
+                if (image != null && image.Length > 0)
+                {
+                    var newImageUrl = await UploadImage(image);
+                    shop.ImageUrl = newImageUrl;
+                }
+                else
+                {
+                    // Retain the existing image URL
+                    shop.ImageUrl = existingShop.ImageUrl;
+                }
+
+                if (ModelState.IsValid)
                 {
                     _context.Update(shop);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ShopExists(shop.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
             }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ShopExists(shop.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
             ViewData["BusinessAreaId"] = new SelectList(_context.BusinessAreas, "Id", "Name", shop.BusinessAreaId);
-            
             return View(shop);
         }
+
 
 
 

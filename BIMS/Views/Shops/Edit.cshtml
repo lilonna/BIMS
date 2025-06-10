@@ -10,44 +10,43 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
+
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
-                <span asp-validation-for="UserId" class="text-danger"></span>
-            </div>
+
+            <input type="hidden" asp-for="UserId" />
+
             <div class="form-group">
                 <label asp-for="BusinessAreaId" class="control-label"></label>
                 <select asp-for="BusinessAreaId" class="form-control" asp-items="ViewBag.BusinessAreaId"></select>
                 <span asp-validation-for="BusinessAreaId" class="text-danger"></span>
             </div>
-           @*  <div class="form-group">
-                <label asp-for="ItemId" class="control-label"></label>
-                <select asp-for="ItemId" class="form-control" asp-items="ViewBag.ItemId"></select>
-                <span asp-validation-for="ItemId" class="text-danger"></span>
-            </div> *@
+
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
-                </label>
+
+            <div class="form-group">
+                <label>Current Image</label><br />
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" alt="Shop Image" width="150" />
+                }
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsDeleted" /> @Html.DisplayNameFor(model => model.IsDeleted)
-                </label>
+
+            <div class="form-group">
+                <label for="image">Change Image (optional)</label>
+                <input type="file" name="image" class="form-control" />
             </div>
+
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
@@ -60,5 +59,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

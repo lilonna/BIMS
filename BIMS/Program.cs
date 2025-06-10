@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using BIMS.Repositories;
 using BIMS.Services;
+using CloudinaryDotNet;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 
@@ -51,7 +52,15 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();  // Register Re
 builder.Services.AddScoped<IOrderService, OrderService>();        // Register Service
 builder.Services.AddScoped<AdminSetupService>();  // Register AdminSetupService
 
-
+builder.Services.AddSingleton(x =>
+{
+    var account = new Account(
+        "deihgf8jg",            // your cloud name
+        "264269712441549",         // replace with your actual API key
+        "YCLpaESP-xOE9uY3V5ToSgKWRWo"       // replace with your actual API secret
+    );
+    return new Cloudinary(account);
+});
 
 builder.Services.AddSession(options =>
 {

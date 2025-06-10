@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BIMS.Models;
 using BIMS.Services;
+using CloudinaryDotNet;
 
 namespace BIMS.Controllers
 {
@@ -14,11 +15,13 @@ namespace BIMS.Controllers
     {
         private readonly BIMSContext _context;
         private readonly INotificationService _notificationService;
+        private readonly Cloudinary _cloudinary;
 
-        public ShopsController(BIMSContext context, INotificationService notificationService)
+        public ShopsController(BIMSContext context, INotificationService notificationService, Cloudinary cloudinary)
         {
             _context = context;
             _notificationService = notificationService;
+            _cloudinary = cloudinary;
         }
       
     // GET: Shops
@@ -170,11 +173,6 @@ namespace BIMS.Controllers
                 return RedirectToAction("Login", "Users"); 
             }
 
-            //if (userId != null && userId != loggedInUserId)
-            //{
-            //    TempData["ErrorMessage"] = "Invalid session user ID.";
-            //    return RedirectToAction("Login", "Users");
-            //}
 
             // Ensure that the provided `userId` matches the logged-in user's ID
             if (userId != null && userId != loggedInUserId)
@@ -191,47 +189,33 @@ namespace BIMS.Controllers
         }
 
 
-        // POST: Shops/Create
-      [HttpPost("UploadImage")]
         private async Task<string> UploadImage(IFormFile image)
         {
-            try
+            if (image == null || image.Length == 0)
+                return null;
+
+            using (var stream = image.OpenReadStream())
             {
-                if (image != null && image.Length > 0)
+                var uploadParams = new CloudinaryDotNet.Actions.ImageUploadParams
                 {
-                    // Define the path where the image will be saved
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                    File = new FileDescription(image.FileName, stream),
+                    Folder = "shop_images", // optional: stores images in a folder
+                    UseFilename = true,
+                    UniqueFilename = true,
+                    Overwrite = false
+                };
 
-                    // Ensure the directory exists
-                    if (!Directory.Exists(uploadsFolder))
-                    {
-                        Directory.CreateDirectory(uploadsFolder);
-                    }
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
 
-                    // Create a unique file name
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
-
-                    // Combine the path and file name
-                    var filePath = Path.Combine(uploadsFolder, fileName);
-
-                    // Save the file
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await image.CopyToAsync(fileStream);
-                    }
-
-                    // Return the relative URL to the saved image
-                    return $"/images/{fileName}";
+                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    return uploadResult.SecureUrl.ToString(); // Save this URL to DB
                 }
             }
-            catch (Exception ex)
-            {
-                // Log the exception
-                Console.WriteLine($"Image upload failed: {ex.Message}");
-            }
+
             return null;
-            
         }
+
 
 
 
@@ -240,27 +224,23 @@ namespace BIMS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,UserId,BusinessAreaId,Description,IsActive,IsDeleted")] Shop shop, IFormFile image)
         {
-             if (!ModelState.IsValid)
-    
-
-
+            if (ModelState.IsValid)
             {
                 if (image != null)
                 {
-                    // Upload the image and get its URL
                     var imageUrl = await UploadImage(image);
-
-                    // Save the URL to the shop model
                     shop.ImageUrl = imageUrl;
                 }
 
                 _context.Add(shop);
                 await _context.SaveChangesAsync();
-                
+                return RedirectToAction(nameof(Index));
             }
+
             ViewData["BusinessAreaId"] = new SelectList(_context.BusinessAreas, "Id", "Name", shop.BusinessAreaId);
             return View(shop);
         }
+
 
         //has shop
         [HttpGet]

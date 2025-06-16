@@ -17,6 +17,9 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient<ChapaService>();
 builder.Services.AddScoped<ChapaService>();
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 
 
 
@@ -33,6 +36,11 @@ builder.Services.AddDbContext<BIMSContext>(options =>
 );
 
 
+var connString = builder.Configuration.GetConnectionString("BIMSConnection");
+using var conn = new Npgsql.NpgsqlConnection(connString);
+conn.Open();
+Console.WriteLine("Connection succeeded");
+conn.Close();
 
 
 builder.Services.AddIdentity<User, IdentityRole<int>>()
@@ -79,6 +87,7 @@ if (!app.Environment.IsDevelopment())
 
 }
 app.UseStaticFiles();
+app.UseDeveloperExceptionPage();
 
 
 app.UseRouting();

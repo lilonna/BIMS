@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BIMS.Migrations
 {
     [DbContext(typeof(BIMSContext))]
-    [Migration("20250515193457_InitialCreate")]
+    [Migration("20250616084723_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

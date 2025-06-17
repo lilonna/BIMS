@@ -13,7 +13,6 @@ using Npgsql.EntityFrameworkCore.PostgreSQL;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient<ChapaService>();
 builder.Services.AddScoped<ChapaService>();
@@ -56,16 +55,16 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();  // Register Repository
-builder.Services.AddScoped<IOrderService, OrderService>();        // Register Service
-builder.Services.AddScoped<AdminSetupService>();  // Register AdminSetupService
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();  
+builder.Services.AddScoped<IOrderService, OrderService>();        
+builder.Services.AddScoped<AdminSetupService>();  
 
 builder.Services.AddSingleton(x =>
 {
     var account = new Account(
-        "deihgf8jg",            // your cloud name
-        "264269712441549",         // replace with your actual API key
-        "YCLpaESP-xOE9uY3V5ToSgKWRWo"       // replace with your actual API secret
+        "deihgf8jg",            
+        "264269712441549",         
+        "YCLpaESP-xOE9uY3V5ToSgKWRWo"      
     );
     return new Cloudinary(account);
 });
@@ -80,7 +79,6 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -104,12 +102,12 @@ async Task EnsureRoles(IServiceProvider serviceProvider)
 {
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
-    // Define roles that should be checked or created
+    
     string[] roles = { "Admin", "User", "DeliveryPerson", "ShopOwner" };
 
     foreach (var role in roles)
     {
-        // Check if the role exists, create it if it doesn't
+        
         if (!await roleManager.RoleExistsAsync(role))
         {
             var roleResult = await roleManager.CreateAsync(new IdentityRole<int>(role));
@@ -125,21 +123,21 @@ async Task EnsureRoles(IServiceProvider serviceProvider)
 
 }
 
-// Call the method after building the app
+
 using (var scope = app.Services.CreateScope())
 {
     var serviceProvider = scope.ServiceProvider;
-    await EnsureRoles(serviceProvider); // Ensure roles and admin user exist
+    await EnsureRoles(serviceProvider); 
 }
 
 
 
-// Call the method after building the app
+
 using (var scope = app.Services.CreateScope())
 {
     var serviceProvider = scope.ServiceProvider;
     await EnsureRoles(serviceProvider);
-      // Ensure the admin user exists
+     
   
 
 }

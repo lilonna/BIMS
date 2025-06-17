@@ -6,16 +6,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BIMS.Models;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 namespace BIMS.Controllers
 {
     public class ItemsController : Controller
     {
         private readonly BIMSContext _context;
+        private readonly Cloudinary _cloudinary;
 
-        public ItemsController(BIMSContext context)
+        public ItemsController(BIMSContext context, Cloudinary cloudinary)
         {
             _context = context;
+            _cloudinary = cloudinary;
         }
 
         // GET: Items
@@ -68,23 +72,17 @@ namespace BIMS.Controllers
             {
                 if (Image != null && Image.Length > 0)
                 {
-                    
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-                    Directory.CreateDirectory(uploadsFolder); 
-
-                    
-                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
-
-                   
-                    var filePath = Path.Combine(uploadsFolder, fileName);
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    await using var stream = Image.OpenReadStream();
+                    var uploadParams = new ImageUploadParams
                     {
-                        await Image.CopyToAsync(stream);
-                    }
+                        File = new FileDescription(Image.FileName, stream),
+                        Folder = "item-images"
+                    };
 
-                    
-                    item.ImagePath = $"/images/{fileName}";
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    item.ImagePath = uploadResult.SecureUrl.ToString();
                 }
+
 
                 _context.Add(item);
                 await _context.SaveChangesAsync();

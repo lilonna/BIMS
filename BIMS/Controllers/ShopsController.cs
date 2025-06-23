@@ -24,7 +24,6 @@ namespace BIMS.Controllers
             _cloudinary = cloudinary;
         }
       
-    // GET: Shops
 
     public async Task<IActionResult> Index(int? cityId, int? locationId, int? businessAreaId, string searchItem, int page = 1, int pageSize = 12)
         {

@@ -25,18 +25,17 @@ public partial class Owner
     public int? DocumentId { get; set; }
 
     public bool Verified { get; set; }
-    // ✅ Add Bank Account Fields
+    
     [Required]
     [StringLength(50)]
-    public string BankName { get; set; } // Store the bank name
+    public string BankName { get; set; } 
 
    
 
     public DateOnly RegisteredDate { get; set; }
 
-    [StringLength(255)] // Store only the document file name (not the file itself)
-    public string License { get; set; } // ✅ Fixed property name
-
+    [StringLength(255)]
+    public string License { get; set; } 
 
     public bool IsActive { get; set; }
     [Required]

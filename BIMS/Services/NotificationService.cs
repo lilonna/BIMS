@@ -78,7 +78,7 @@ namespace BIMS.Services
         {
             var order = await _context.Orders
                 .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Item) // Ensure Item details are loaded
+                .ThenInclude(oi => oi.Item) 
                 .FirstOrDefaultAsync(o => o.Id == orderId);
 
             if (order == null)
@@ -147,13 +147,13 @@ namespace BIMS.Services
 
             var adminNotification = new Notification
             {
-                UserId = adminUserId, // Use the filtered admin's User ID
+                UserId = adminUserId,
                 Message = $"New order placed! Order ID: {order.Id}. Items: {orderDetails}.Address: {order.ShippingAddress}",
                 IsRead = false,
                 IsDeleted = false,
                 NotificationDate = DateTime.UtcNow,
-                NotificationTypeId = 1, // Adjust based on NotificationType table
-                NotificationStatusId = 1 // Adjust based on NotificationStatus table
+                NotificationTypeId = 1, 
+                NotificationStatusId = 1 
             };
 
             await _context.Notifications.AddAsync(adminNotification);
@@ -167,7 +167,7 @@ namespace BIMS.Services
         {
             var order = await _context.Orders
                 .Include(o => o.OrderItems)
-                .ThenInclude(oi => oi.Item) // Ensure Item details are loaded
+                .ThenInclude(oi => oi.Item) 
                 .FirstOrDefaultAsync(o => o.Id == orderId);
 
             if (order == null || order.OrderItems == null || !order.OrderItems.Any())
@@ -199,7 +199,7 @@ namespace BIMS.Services
                         IsDeleted = false,
                         NotificationDate = DateTime.UtcNow,
                         NotificationTypeId = 2, // Adjust based on NotificationType table
-                        NotificationStatusId = 1 // Adjust based on NotificationStatus table
+                        NotificationStatusId = 1 
                     };
 
                     await _context.Notifications.AddAsync(shopOwnerNotification);

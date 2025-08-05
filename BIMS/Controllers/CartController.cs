@@ -76,59 +76,6 @@ namespace BIMS.Controllers
             }
         }
 
-
-
-
-
-        //public async Task<IActionResult> Checkout(string? address)
-        //{
-        //    int? userId = HttpContext.Session.GetInt32("UserId");
-        //    if (userId == null)
-        //    {
-        //        TempData["Error"] = "You must be logged in to proceed to checkout.";
-        //        return RedirectToAction("Login", "Users");
-        //    }
-
-        //    var cartItems = await _cartService.GetUserCartAsync(userId.Value);
-        //    if (cartItems.Count == 0)
-        //    {
-        //        TempData["Error"] = "Your cart is empty.";
-        //        return RedirectToAction("ViewCart", "Cart");
-        //    }
-
-        //    // Get contact number from session
-        //    string? contactNumber = HttpContext.Session.GetString("UserContact");
-
-        //    if (string.IsNullOrEmpty(address) || string.IsNullOrEmpty(contactNumber))
-        //    {
-        //        ViewBag.TotalAmount = cartItems.Sum(i => i.TotalPrice * i.Quantity);
-        //        ViewBag.ContactNumber = contactNumber; // Pass the phone number to the view
-        //        return View(cartItems); // Show user the checkout form
-        //    }
-
-        //    var orderItems = cartItems.Select(cart => new OrderItem
-        //    {
-        //        ItemId = cart.ItemId,
-        //        Quantity = cart.Quantity,
-        //        Price = cart.TotalPrice
-        //    }).ToList();
-
-        //    var order = await _orderService.CreateOrderAsync(userId.Value, orderItems, address, contactNumber);
-
-        //    // Notify admin & shop owners
-        //    await _notificationService.NotifyAdmin(order.Id);
-        //    await _notificationService.NotifyShopOwners(order.Id);
-
-        //    // Clear the cart
-        //    await _cartService.ClearCartAsync(userId.Value);
-
-        //    TempData["Success"] = "Thank you for shopping with us!";
-        //    return RedirectToAction("OrderConfirmation");
-        //}
-
-
-        //second last
-
         public async Task<IActionResult> Checkout(string? address)
         {
             int? userId = HttpContext.Session.GetInt32("UserId");
@@ -189,16 +136,9 @@ namespace BIMS.Controllers
                 return Redirect(checkoutUrl);
             }
 
-            TempData["Error"] = ($"Payment initiation failed for OrderId: {order.Id}");
+            TempData["Error"] = checkoutUrl;
             return RedirectToAction("ViewCart", "Cart");
         }
-
-
-
-
-
-  
-
         public async Task<IActionResult> PaymentSuccess(string orderId)
         {
             if (string.IsNullOrEmpty(orderId))
@@ -214,15 +154,15 @@ namespace BIMS.Controllers
                 return RedirectToAction("ViewCart", "Cart");
             }
 
-            // Update order with payment status and date
+            
             order.PaymentStatus = "Paid";
             order.OrderDate = DateTime.Now;
 
-            // Save the updated order
+           
             await _orderService.UpdateOrderAsync(order);
 
-            // Notify admin and shop owners
-            await _notificationService.NotifyAdmin(order.Id);  // Notify admin
+            
+            await _notificationService.NotifyAdmin(order.Id);  
             await _notificationService.NotifyShopOwners(order.Id);  // Notify shop owners
 
             // Optionally, clear the cart if needed (if not already done elsewhere)
@@ -239,15 +179,8 @@ namespace BIMS.Controllers
             ViewBag.PaymentDate = DateTime.Now;
             ViewBag.Message = "Payment successful! Your order will be processed soon.";
 
-            return View("Receipt");  // Ensure you have a Receipt.cshtml view
+            return View("Receipt");  
         }
-
-
-       
-
-
-
-
         public async Task<IActionResult> ProceedToCheckout()
         {
             var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
@@ -266,19 +199,11 @@ namespace BIMS.Controllers
 
             return View(cartItems);
         }
-
-
-
-
-
         public async Task<IActionResult> RemoveFromCart(int cartId)
         {
             await _cartService.RemoveFromCartAsync(cartId);
             return RedirectToAction("Index", "Cart");
         }
-
-
-
         public IActionResult ViewCart()
         {
             return View();
@@ -311,11 +236,9 @@ namespace BIMS.Controllers
 
             var order = await _orderService.CreateOrderAsync(userId.Value, orderItems, address, contactNumber);
 
-            // Notify admin & shop owners
+            
             await _notificationService.NotifyAdmin(order.Id);
             await _notificationService.NotifyShopOwners(order.Id);
-
-            // Clear the cart
             await _cartService.ClearCartAsync(userId.Value);
 
             TempData["Success"] = "Thank you for shopping with us!";
@@ -336,9 +259,9 @@ namespace BIMS.Controllers
                 return NotFound("Order not found.");
             }
 
-            if (webhookData.Status == "success")  // Ensure status matches Chapa's success response
+            if (webhookData.Status == "success")  
             {
-                order.PaymentStatus = "Paid";  // ✅ Update payment status
+                order.PaymentStatus = "Paid"; 
                 
                 await _orderService.UpdateOrderAsync(order);
             }
@@ -370,30 +293,6 @@ namespace BIMS.Controllers
             ViewBag.SuccessMessage = "🎉 Thank you for shopping with us! Your order will arrive soon.";
             return View(lastOrder);
         }
-
-
-        // Order Confirmation Page
-        //public async Task<IActionResult> OrderConfirmation()
-
-        //{
-        //    int? userId = HttpContext.Session.GetInt32("UserId");
-        //    if (userId == null)
-        //    {
-        //        return RedirectToAction("Login", "Users");
-        //    }
-        //    // Retrieve the last order details for the user, or handle accordingly
-        //    var lastOrder = await _orderService.GetOrderDetailsAsync(userId.Value);
-
-        //    if (lastOrder == null)
-        //    {
-        //        // Handle case where there is no order (maybe redirect or show a message)
-        //        TempData["Error"] = "No order found.";
-        //        return RedirectToAction("Index", "Home");
-        //    }
-
-        //    return View(lastOrder);
-        //}
-
         public async Task<IActionResult> ClearCart()
     {
         int userId = HttpContext.Session.GetInt32("UserId") ?? 0;
@@ -404,3 +303,56 @@ namespace BIMS.Controllers
     }
 }
 }
+
+
+
+
+
+//public async Task<IActionResult> Checkout(string? address)
+//{
+//    int? userId = HttpContext.Session.GetInt32("UserId");
+//    if (userId == null)
+//    {
+//        TempData["Error"] = "You must be logged in to proceed to checkout.";
+//        return RedirectToAction("Login", "Users");
+//    }
+
+//    var cartItems = await _cartService.GetUserCartAsync(userId.Value);
+//    if (cartItems.Count == 0)
+//    {
+//        TempData["Error"] = "Your cart is empty.";
+//        return RedirectToAction("ViewCart", "Cart");
+//    }
+
+//    // Get contact number from session
+//    string? contactNumber = HttpContext.Session.GetString("UserContact");
+
+//    if (string.IsNullOrEmpty(address) || string.IsNullOrEmpty(contactNumber))
+//    {
+//        ViewBag.TotalAmount = cartItems.Sum(i => i.TotalPrice * i.Quantity);
+//        ViewBag.ContactNumber = contactNumber; // Pass the phone number to the view
+//        return View(cartItems); // Show user the checkout form
+//    }
+
+//    var orderItems = cartItems.Select(cart => new OrderItem
+//    {
+//        ItemId = cart.ItemId,
+//        Quantity = cart.Quantity,
+//        Price = cart.TotalPrice
+//    }).ToList();
+
+//    var order = await _orderService.CreateOrderAsync(userId.Value, orderItems, address, contactNumber);
+
+//    // Notify admin & shop owners
+//    await _notificationService.NotifyAdmin(order.Id);
+//    await _notificationService.NotifyShopOwners(order.Id);
+
+//    // Clear the cart
+//    await _cartService.ClearCartAsync(userId.Value);
+
+//    TempData["Success"] = "Thank you for shopping with us!";
+//    return RedirectToAction("OrderConfirmation");
+//}
+
+
+//second last

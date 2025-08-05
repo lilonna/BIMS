@@ -10,7 +10,7 @@ namespace BIMS.Services
     public class ChapaService
     {
         private readonly string _chapaPayoutUrl = "https://api.chapa.co/v1/disburse";
-        private readonly string _chapaSecretKey = "CHASECK_TEST-7gsEVIkbNCJXgIpMdFYbmhDzUTGZ0Cvy"; // Replace with your Chapa API key
+        private readonly string _chapaSecretKey = "CHASECK_TEST-7gsEVIkbNCJXgIpMdFYbmhDzUTGZ0Cvy"; 
 
 
         public ChapaService() { }
@@ -55,10 +55,10 @@ namespace BIMS.Services
 
                 if (result.status == "success")
                 {
-                    return result.data.status; // Return the payment status (e.g., "successful", "failed", etc.)
+                    return result.data.status; 
                 }
 
-                return null; // If the transaction verification fails
+                return null; 
             }
         }
 
@@ -75,16 +75,16 @@ namespace BIMS.Services
 
                 if (result.status == "success")
                 {
-                    return result.data.checkout_url; // ✅ Directly return the receipt URL
+                    return result.data.checkout_url; 
                 }
 
-                return null; // If verification fails
+                return null; 
             }
         }
 
 
 
-        public async Task<string?> InitiatePaymentAsync(decimal totalAmount, string Email, string firstName, string lastName, string phoneNumber, string orderId, string returnUrl, string callbackUrl)
+        public async Task<string> InitiatePaymentAsync(decimal totalAmount, string Email, string firstName, string lastName, string phoneNumber, string orderId, string returnUrl, string callbackUrl)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -114,7 +114,7 @@ namespace BIMS.Services
                 var response = await client.PostAsync("https://api.chapa.co/v1/transaction/initialize", content);
                 var responseString = await response.Content.ReadAsStringAsync();
 
-                // ✅ Log response for debugging
+               
                 Console.WriteLine("Chapa Response: " + responseString);
 
                 dynamic result = JsonConvert.DeserializeObject(responseString);
@@ -122,11 +122,11 @@ namespace BIMS.Services
                 if (result.status == "success")
                 {
                     Console.WriteLine("Chapa Checkout URL: " + result.data.checkout_url);
-                    return result.data.checkout_url; // Return Chapa checkout URL
+                    return result.data.checkout_url; 
                 }
 
-                Console.WriteLine("Chapa Payment Error: " + responseString);
-                return null; // Payment failed
+                return $"Chapa Payment Error: {responseString}";
+
             }
         }
 
